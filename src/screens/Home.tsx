@@ -68,16 +68,35 @@ export function Home() {
   const [hostSentTo, setHostSentTo] = useState<string | null>(null);
   const [hostError, setHostError] = useState<string | null>(null);
 
+  const [joinNameError, setJoinNameError] = useState<string | null>(null);
+  const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
+  const [hostEmailError, setHostEmailError] = useState<string | null>(null);
+
+  const validateName = (v: string) => v.trim() ? null : 'Please enter your name.';
+  const validateCode = (v: string) => {
+    const t = v.trim().toUpperCase();
+    if (!t) return 'Enter the room code your teammate sent you.';
+    if (!/^[A-Z]{3}-\d{4}$/.test(t)) return 'Should look like ABC-1234.';
+    return null;
+  };
+  const validateEmail = (v: string) => {
+    const t = v.trim();
+    if (!t) return 'Please enter your email.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return 'That doesn’t look like a valid email.';
+    return null;
+  };
+
   const onHostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = hostEmail.trim();
-    if (!trimmed) return;
+    const emailErr = validateEmail(hostEmail);
+    setHostEmailError(emailErr);
+    if (emailErr) return;
     setHostSubmitting(true);
     setHostError(null);
-    const { error } = await signIn(trimmed);
+    const { error } = await signIn(hostEmail.trim());
     setHostSubmitting(false);
     if (error) setHostError(error.message);
-    else setHostSentTo(trimmed);
+    else setHostSentTo(hostEmail.trim());
   };
 
   useEffect(() => {
@@ -263,11 +282,16 @@ export function Home() {
                 {landingMode === 'join' ? (
                   <form
                     className="surface"
+                    noValidate
                     onSubmit={(e) => {
                       e.preventDefault();
+                      const nameErr = validateName(joinName);
+                      const codeErr = validateCode(joinCode);
+                      setJoinNameError(nameErr);
+                      setJoinCodeError(codeErr);
+                      if (nameErr || codeErr) return;
                       const trimmedName = joinName.trim();
                       const code = joinCode.trim().toUpperCase();
-                      if (!trimmedName || !code) return;
                       saveProfile({
                         name: trimmedName,
                         color: profile?.color ?? colorForName(trimmedName),
@@ -283,36 +307,41 @@ export function Home() {
                     </div>
                     <div className="field-group">
                       <label className="field-label" htmlFor="home-join-name">Your name</label>
-                      <div className="field-frame">
+                      <div className="field-frame" style={joinNameError ? { borderColor: '#c77b58' } : undefined}>
                         <input
                           id="home-join-name"
                           className="field-input"
                           placeholder="Casey Lin"
                           value={joinName}
-                          onChange={(e) => setJoinName(e.target.value)}
+                          onChange={(e) => { setJoinName(e.target.value); if (joinNameError) setJoinNameError(null); }}
+                          onBlur={(e) => setJoinNameError(validateName(e.target.value))}
                           autoComplete="off"
+                          aria-invalid={!!joinNameError}
                         />
                       </div>
+                      {joinNameError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{joinNameError}</div>}
                     </div>
                     <div className="field-group">
                       <label className="field-label" htmlFor="home-join-code">Room code</label>
-                      <div className="field-frame">
+                      <div className="field-frame" style={joinCodeError ? { borderColor: '#c77b58' } : undefined}>
                         <input
                           id="home-join-code"
                           className="field-input mono code-input"
                           placeholder="ABC-1234"
                           value={joinCode}
-                          onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                          onChange={(e) => { setJoinCode(e.target.value.toUpperCase()); if (joinCodeError) setJoinCodeError(null); }}
+                          onBlur={(e) => setJoinCodeError(validateCode(e.target.value))}
                           autoComplete="off"
                           spellCheck="false"
+                          aria-invalid={!!joinCodeError}
                         />
                       </div>
+                      {joinCodeError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{joinCodeError}</div>}
                     </div>
                     <button
                       type="submit"
                       className="btn accent lg"
-                      style={{ justifyContent: 'center' }}
-                      disabled={!joinName.trim() || !joinCode.trim()}>
+                      style={{ justifyContent: 'center' }}>
                       Let's go
                     </button>
                     <div className="tiny muted" style={{ textAlign: 'center' }}>
@@ -350,21 +379,23 @@ export function Home() {
                         </button>
                       </div>
                     ) : (
-                      <form onSubmit={onHostSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      <form onSubmit={onHostSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                         <div className="field-group">
                           <label className="field-label" htmlFor="host-email">Email</label>
-                          <div className="field-frame">
+                          <div className="field-frame" style={hostEmailError ? { borderColor: '#c77b58' } : undefined}>
                             <input
                               id="host-email"
                               type="email"
                               className="field-input"
                               placeholder="you@company.com"
                               value={hostEmail}
-                              onChange={(e) => setHostEmail(e.target.value)}
+                              onChange={(e) => { setHostEmail(e.target.value); if (hostEmailError) setHostEmailError(null); }}
+                              onBlur={(e) => setHostEmailError(validateEmail(e.target.value))}
                               autoComplete="email"
-                              required
+                              aria-invalid={!!hostEmailError}
                             />
                           </div>
+                          {hostEmailError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{hostEmailError}</div>}
                         </div>
                         {hostError && (
                           <div className="tiny" style={{ color: '#9c4326' }}>{hostError}</div>
@@ -373,7 +404,7 @@ export function Home() {
                           type="submit"
                           className="btn accent lg"
                           style={{ justifyContent: 'center' }}
-                          disabled={hostSubmitting || !hostEmail.trim()}>
+                          disabled={hostSubmitting}>
                           {hostSubmitting ? 'Sending…' : 'Send magic link'}
                         </button>
                       </form>
