@@ -2,7 +2,7 @@
 
 **Quick team retrospectives. No setup, no friction.**
 
-Live at **[retro-board-green.vercel.app](https://retro-board-green.vercel.app)**.
+Live at **[jomretro.com](https://jomretro.com)**.
 
 JomRetro is a multiplayer retrospective board. Open a room, share a code or invite link with your team, and run a retro together in real time. No accounts to join, no software to install. Hosts who want to save and revisit their boards can sign in with a magic link.
 
