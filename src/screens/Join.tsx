@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { PALETTE, colorForName, initials } from '../data';
 import type { FormatId } from '../data';
@@ -6,12 +6,6 @@ import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { loadProfile, saveProfile } from '../lib/profile';
 import { useAuth } from '../lib/auth';
-
-type PreviewRoom = { title: string; format: string; peers: number; dot: string };
-const PREVIEW_ROOMS: Record<string, PreviewRoom> = {
-  'OAK-7421': { title: 'Sprint 24 retro', format: 'Classic', peers: 4, dot: '#3D8B7A' },
-  'CDR-8821': { title: 'Q1 wrap-up', format: 'Start / Stop / Continue', peers: 2, dot: '#7C6FB0' },
-};
 
 const FORMAT_CHOICES: { value: FormatId; label: string }[] = [
   { value: 'classic',  label: 'Classic' },
@@ -53,11 +47,6 @@ export function Join() {
     saveProfile({ name: name.trim(), color });
     navigate(`/r/${code.trim().toUpperCase()}?format=${format}`);
   };
-
-  const codePreview = useMemo<PreviewRoom | null>(() => {
-    const trimmed = code.trim().toUpperCase();
-    return PREVIEW_ROOMS[trimmed] || null;
-  }, [code]);
 
   const shuffleColor = () => {
     const others = PALETTE.filter((c) => c !== color);
@@ -157,23 +146,6 @@ export function Join() {
                   spellCheck="false"
                 />
               </div>
-              {codePreview ? (
-                <div className="code-preview">
-                  <span className="dot" style={{ background: codePreview.dot }} />
-                  <span className="code-preview-name">{codePreview.title}</span>
-                  <span className="muted">·</span>
-                  <span className="muted">{codePreview.format}</span>
-                  <span className="muted">·</span>
-                  <span className="muted">{codePreview.peers} already here</span>
-                </div>
-              ) : (
-                <div className="tiny muted" style={{ marginTop: 8 }}>
-                  Or try a sample:{' '}
-                  <button type="button" className="quiet-link mono" onClick={() => setCode('OAK-7421')}>OAK-7421</button>
-                  {' '}·{' '}
-                  <button type="button" className="quiet-link mono" onClick={() => setCode('CDR-8821')}>CDR-8821</button>
-                </div>
-              )}
             </div>
 
             <div className="field-group">
