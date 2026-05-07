@@ -223,10 +223,10 @@ export function Home() {
               {/* Anonymous landing — split-action */}
               <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 28 }}>
                 <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-                  Quick team retrospectives.
+                  Run a retro in seconds.
                 </h1>
                 <div className="muted" style={{ marginTop: 6 }}>
-                  Drop in with a code, or sign in to host your own.
+                  Got a code? Drop in. Hosting? Sign in and you're set.
                 </div>
               </div>
 
@@ -239,8 +239,8 @@ export function Home() {
                   background: 'var(--color-surface-2)',
                   border: '1px solid var(--color-divider)',
                 }}>
-                  <ModeTab active={landingMode === 'join'} onClick={() => setLandingMode('join')}>Join a retro</ModeTab>
-                  <ModeTab active={landingMode === 'host'} onClick={() => setLandingMode('host')}>Host your own</ModeTab>
+                  <ModeTab active={landingMode === 'join'} onClick={() => setLandingMode('join')}>I'm joining</ModeTab>
+                  <ModeTab active={landingMode === 'host'} onClick={() => setLandingMode('host')}>I'm hosting</ModeTab>
                 </div>
               </div>
 
@@ -261,9 +261,9 @@ export function Home() {
                     }}
                     style={{ width: 440, maxWidth: '100%', padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div>
-                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Join a retro</h2>
+                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Hop into a retro</h2>
                       <div className="muted tiny" style={{ marginTop: 4 }}>
-                        Have a code from a teammate? Hop right in.
+                        Got a code from a teammate? Pop your name in and you're in.
                       </div>
                     </div>
                     <div className="field-group">
@@ -298,18 +298,18 @@ export function Home() {
                       className="btn accent lg"
                       style={{ justifyContent: 'center' }}
                       disabled={!joinName.trim() || !joinCode.trim()}>
-                      Join
+                      Let's go
                     </button>
                     <div className="tiny muted" style={{ textAlign: 'center' }}>
-                      No account needed.
+                      No account, no signup. Just retro.
                     </div>
                   </form>
                 ) : (
                   <div className="surface" style={{ width: 440, maxWidth: '100%', padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div>
-                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Host your own</h2>
+                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Run your own retro</h2>
                       <div className="muted tiny" style={{ marginTop: 4 }}>
-                        Create boards, save them, revisit anytime.
+                        Spin up boards, keep them around, come back whenever.
                       </div>
                     </div>
                     <button
@@ -320,7 +320,7 @@ export function Home() {
                       Sign in with email
                     </button>
                     <div className="tiny muted" style={{ textAlign: 'center' }}>
-                      Free. Magic-link, no passwords.
+                      Free. We email you a link — no passwords.
                     </div>
                   </div>
                 )}
