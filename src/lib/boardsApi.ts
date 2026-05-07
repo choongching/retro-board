@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { FormatId } from '../data';
+import type { Card, ColumnId, FormatId } from '../data';
 
 export type Board = {
   id: string;
@@ -53,4 +53,90 @@ export async function updateBoardLastActive(boardId: string): Promise<void> {
     .update({ last_active_at: new Date().toISOString() })
     .eq('id', boardId);
   if (error) console.error('updateBoardLastActive failed', error);
+}
+
+type CardRow = {
+  id: string;
+  col: string;
+  text: string;
+  author_id: string | null;
+  votes: string[];
+  created_at: string;
+};
+
+export async function getCardsForBoard(boardId: string): Promise<Card[]> {
+  const { data, error } = await supabase
+    .from('cards')
+    .select('id, col, text, author_id, votes, created_at')
+    .eq('board_id', boardId)
+    .order('created_at', { ascending: true });
+  if (error) {
+    console.error('getCardsForBoard failed', error);
+    return [];
+  }
+  return (data as CardRow[]).map((r) => ({
+    id: r.id,
+    col: r.col as ColumnId,
+    text: r.text,
+    authorId: r.author_id ?? '',
+    votes: r.votes ?? [],
+    createdAt: new Date(r.created_at).getTime(),
+  }));
+}
+
+export async function insertCard(
+  boardId: string,
+  card: Card,
+  authorName: string,
+): Promise<void> {
+  const { error } = await supabase.from('cards').upsert(
+    {
+      id: card.id,
+      board_id: boardId,
+      col: card.col,
+      text: card.text,
+      author_id: card.authorId,
+      author_name: authorName,
+      votes: card.votes,
+      created_at: new Date(card.createdAt).toISOString(),
+    },
+    { onConflict: 'id' },
+  );
+  if (error) console.error('insertCard failed', error);
+}
+
+export async function updateCardText(cardId: string, text: string): Promise<void> {
+  const { error } = await supabase.from('cards').update({ text }).eq('id', cardId);
+  if (error) console.error('updateCardText failed', error);
+}
+
+export async function updateCardCol(cardId: string, col: ColumnId): Promise<void> {
+  const { error } = await supabase.from('cards').update({ col }).eq('id', cardId);
+  if (error) console.error('updateCardCol failed', error);
+}
+
+export async function setCardVotes(cardId: string, votes: string[]): Promise<void> {
+  const { error } = await supabase.from('cards').update({ votes }).eq('id', cardId);
+  if (error) console.error('setCardVotes failed', error);
+}
+
+export async function deleteCardById(cardId: string): Promise<void> {
+  const { error } = await supabase.from('cards').delete().eq('id', cardId);
+  if (error) console.error('deleteCardById failed', error);
+}
+
+export async function bulkInsertCards(boardId: string, cards: Card[]): Promise<void> {
+  if (cards.length === 0) return;
+  const rows = cards.map((c) => ({
+    id: c.id,
+    board_id: boardId,
+    col: c.col,
+    text: c.text,
+    author_id: c.authorId || null,
+    author_name: null,
+    votes: c.votes,
+    created_at: new Date(c.createdAt).toISOString(),
+  }));
+  const { error } = await supabase.from('cards').insert(rows);
+  if (error) console.error('bulkInsertCards failed', error);
 }

@@ -3,6 +3,13 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { Card, ColumnId, FormatId } from '../data';
 import type { Profile } from './profile';
+import {
+  deleteCardById,
+  insertCard,
+  setCardVotes,
+  updateCardCol,
+  updateCardText,
+} from './boardsApi';
 
 export type RoomState = {
   format: FormatId;
@@ -41,6 +48,7 @@ export function useRetroChannel(
   roomCode: string,
   profile: Profile,
   initialState?: Partial<RoomState>,
+  boardId?: string,
 ) {
   const [state, setState] = useState<RoomState>({ ...EMPTY, ...initialState });
   const [users, setUsers] = useState<User[]>([]);
@@ -128,7 +136,8 @@ export function useRetroChannel(
       event: 'state:patch',
       payload: patch,
     });
-  }, []);
+    if (boardId) writePatchThrough(boardId, patch, stateRef.current, profile.name);
+  }, [boardId, profile.name]);
 
   const addCard = useCallback(
     (card: Omit<Card, 'id' | 'votes' | 'createdAt'>) =>
@@ -184,6 +193,43 @@ export function useRetroChannel(
     updateSettings,
     sendCursor,
   };
+}
+
+// Fire-and-forget DB write for the originating tab; receivers don't write.
+// `prev` is the room state before the patch was applied — needed to derive
+// the new vote array (the patch only carries the toggling user id).
+function writePatchThrough(
+  boardId: string,
+  patch: Patch,
+  prev: RoomState,
+  authorName: string,
+) {
+  switch (patch.kind) {
+    case 'card:add':
+      void insertCard(boardId, patch.card, authorName);
+      break;
+    case 'card:edit':
+      void updateCardText(patch.id, patch.text);
+      break;
+    case 'card:delete':
+      void deleteCardById(patch.id);
+      break;
+    case 'card:vote': {
+      const card = prev.cards.find((c) => c.id === patch.id);
+      if (!card) break;
+      const has = card.votes.includes(patch.userId);
+      const next = has ? card.votes.filter((v) => v !== patch.userId) : [...card.votes, patch.userId];
+      void setCardVotes(patch.id, next);
+      break;
+    }
+    case 'card:move':
+      // Cross-column moves persist; in-column reorder does not (no order_index column).
+      void updateCardCol(patch.id, patch.col);
+      break;
+    case 'settings':
+      // Title/anonMode/revealed are not persisted in this phase.
+      break;
+  }
 }
 
 function applyPatch(s: RoomState, p: Patch): RoomState {

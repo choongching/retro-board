@@ -5,7 +5,7 @@ import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
 import { useRetroChannel } from '../lib/useRetroChannel';
 import { buildExport, downloadJson } from '../lib/retroExport';
-import { getBoardByCode, updateBoardLastActive } from '../lib/boardsApi';
+import { getBoardByCode, getCardsForBoard, updateBoardLastActive } from '../lib/boardsApi';
 import type { Board as DbBoard } from '../lib/boardsApi';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
@@ -23,16 +23,19 @@ export function Board() {
   const location = useLocation();
   const navigate = useNavigate();
   const profile = loadProfile();
-  const [lookup, setLookup] = useState<{ status: 'loading' } | { status: 'resolved'; board: DbBoard | null }>(
-    { status: 'loading' },
-  );
+  const [lookup, setLookup] = useState<
+    | { status: 'loading' }
+    | { status: 'resolved'; board: DbBoard | null; cards: Card[] }
+  >({ status: 'loading' });
 
   useEffect(() => {
     if (!code) return;
     let cancelled = false;
-    getBoardByCode(code).then((board) => {
-      if (!cancelled) setLookup({ status: 'resolved', board });
-    });
+    (async () => {
+      const board = await getBoardByCode(code);
+      const cards = board ? await getCardsForBoard(board.id) : [];
+      if (!cancelled) setLookup({ status: 'resolved', board, cards });
+    })();
     return () => { cancelled = true; };
   }, [code]);
 
@@ -49,6 +52,7 @@ export function Board() {
       formatParam={searchParams.get('format')}
       imported={imported}
       dbBoard={lookup.board}
+      dbCards={lookup.cards}
       onLeave={() => navigate('/')}
       onChangeProfile={() => navigate(`/join/${code}`)}
     />
@@ -56,13 +60,14 @@ export function Board() {
 }
 
 function BoardInner({
-  code, profile, formatParam, imported, dbBoard, onLeave, onChangeProfile,
+  code, profile, formatParam, imported, dbBoard, dbCards, onLeave, onChangeProfile,
 }: {
   code: string;
   profile: NonNullable<ReturnType<typeof loadProfile>>;
   formatParam: string | null;
   imported?: ImportedNavState;
   dbBoard: DbBoard | null;
+  dbCards: Card[];
   onLeave: () => void;
   onChangeProfile: () => void;
 }) {
@@ -70,8 +75,8 @@ function BoardInner({
   const initialState = useMemo(() => ({
     format: initialFormat,
     title: dbBoard?.title ?? imported?.importedTitle ?? `Retro ${code}`,
-    cards: imported?.importedCards ?? [],
-  }), [initialFormat, code, imported, dbBoard]);
+    cards: dbBoard ? dbCards : (imported?.importedCards ?? []),
+  }), [initialFormat, code, imported, dbBoard, dbCards]);
 
   useEffect(() => {
     if (!dbBoard) return;
@@ -84,7 +89,7 @@ function BoardInner({
     state, users, cursors,
     addCard, editCard, deleteCard, voteCard, moveCard,
     updateSettings, sendCursor,
-  } = useRetroChannel(code, profile, initialState);
+  } = useRetroChannel(code, profile, initialState, dbBoard?.id);
 
   const fmt = FORMATS[state.format];
   const participants = useMemo(() => {

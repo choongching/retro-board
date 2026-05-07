@@ -11,7 +11,7 @@ import { RetroRow } from '../components/RetroRow';
 import { loadProfile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 import { useAuth } from '../lib/auth';
-import { createBoard } from '../lib/boardsApi';
+import { bulkInsertCards, createBoard } from '../lib/boardsApi';
 
 function makeCode() {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -68,12 +68,13 @@ export function Home() {
     const cards = stripAuthorsAndVotes(result.data.cards);
     const navState = { importedTitle: result.data.title, importedCards: cards };
     if (user) {
-      await createBoard({
+      const board = await createBoard({
         code: newCode,
         title: result.data.title,
         format: result.data.format,
         ownerId: user.id,
       });
+      if (board && cards.length) await bulkInsertCards(board.id, cards);
     }
     if (!profile?.name) {
       navigate(`/join/${newCode}?format=${result.data.format}`, { state: navState });
