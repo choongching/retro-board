@@ -5,6 +5,7 @@ import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { loadProfile, saveProfile } from '../lib/profile';
+import { useAuth } from '../lib/auth';
 
 type PreviewRoom = { title: string; format: string; peers: number; dot: string };
 const PREVIEW_ROOMS: Record<string, PreviewRoom> = {
@@ -28,6 +29,7 @@ export function Join() {
   const params = useParams<{ code?: string }>();
   const [searchParams] = useSearchParams();
   const formatFromUrl = searchParams.get('format');
+  const { user } = useAuth();
 
   const [name, setName] = useState(existing?.name || '');
   const [code, setCode] = useState((params.code || '').toUpperCase());
@@ -196,6 +198,21 @@ export function Join() {
               Join session
             </button>
           </form>
+
+          {!user && (
+            <div className="tiny muted" style={{ marginTop: 14, textAlign: 'center' }}>
+              Want to save retros across sessions?{' '}
+              <button
+                type="button"
+                className="quiet-link"
+                onClick={() => {
+                  const next = params.code ? `/r/${params.code}` : '/';
+                  navigate(`/signin?next=${encodeURIComponent(next)}`);
+                }}>
+                Sign in
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FORMATS, MOCK_WORKSPACES } from '../data';
+import { FORMATS } from '../data';
 import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
@@ -36,23 +36,20 @@ export function Home() {
   const profile = loadProfile();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeWs, setActiveWs] = useState(MOCK_WORKSPACES[0].id);
-  const ws = MOCK_WORKSPACES.find((w) => w.id === activeWs)!;
 
   const onJoin = (codeOrEvent?: string | unknown) => {
     const code = typeof codeOrEvent === 'string' ? codeOrEvent : '';
     navigate(code ? `/join/${code}` : '/join');
   };
-  const onCreate = async (_wsId: string, formatId: FormatId = 'classic') => {
+  const onCreate = async (formatId: FormatId = 'classic') => {
+    if (!user) return;
     const code = makeCode();
-    if (user) {
-      await createBoard({
-        code,
-        title: `Retro ${code}`,
-        format: formatId,
-        ownerId: user.id,
-      });
-    }
+    await createBoard({
+      code,
+      title: `Retro ${code}`,
+      format: formatId,
+      ownerId: user.id,
+    });
     if (!profile?.name) {
       navigate(`/join/${code}?format=${formatId}`);
     } else {
@@ -117,18 +114,6 @@ export function Home() {
       <header className="topbar">
         <div className="brand">
           <RetroWordmark />
-          <span className="muted" style={{ marginLeft: 4 }}>·</span>
-          <select
-            value={activeWs}
-            onChange={(e) => setActiveWs(e.target.value)}
-            style={{
-              border: 0, background: 'transparent', font: 'inherit', color: 'var(--color-text-2)',
-              padding: '4px 4px', borderRadius: 6, cursor: 'pointer',
-            }}>
-            {MOCK_WORKSPACES.map((w) => (
-              <option key={w.id} value={w.id}>{w.name} workspace</option>
-            ))}
-          </select>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <AuthPill />
@@ -141,13 +126,14 @@ export function Home() {
           {/* Hero */}
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 }}>
             <div>
-              <div className="tiny muted" style={{ textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-                {ws.name} · {ws.members} members
-              </div>
               <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.02em', fontWeight: 600 }}>
-                Retros
+                {user ? 'Retros' : 'Join a retro'}
               </h1>
-              <div className="muted" style={{ marginTop: 6 }}>Run a quick retrospective with your team. No setup.</div>
+              <div className="muted" style={{ marginTop: 6 }}>
+                {user
+                  ? 'Run a quick retrospective with your team. No setup.'
+                  : 'Got a room code? Hop in. Sign in to create and save retros across sessions.'}
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn" onClick={onImportClick} title="Start a new retro from a JSON file">
@@ -156,9 +142,15 @@ export function Home() {
               <button className="btn" onClick={() => onJoin()}>
                 <Icon name="key" /> Join with code
               </button>
-              <button className="btn accent" onClick={() => onCreate(ws.id)}>
-                <Icon name="plus" /> New retro
-              </button>
+              {user ? (
+                <button className="btn accent" onClick={() => onCreate()}>
+                  <Icon name="plus" /> New retro
+                </button>
+              ) : (
+                <button className="btn accent" onClick={() => navigate('/signin')}>
+                  Sign in
+                </button>
+              )}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -180,12 +172,13 @@ export function Home() {
             </div>
           )}
 
-          {/* Quick start cards */}
+          {/* Quick start cards (creators only) */}
+          {user && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 36 }}>
             {Object.values(FORMATS).map((f) => (
               <button
                 key={f.id}
-                onClick={() => onCreate(ws.id, f.id)}
+                onClick={() => onCreate(f.id)}
                 className="surface"
                 style={{
                   textAlign: 'left', padding: 16,
@@ -211,6 +204,7 @@ export function Home() {
               </button>
             ))}
           </div>
+          )}
 
           {/* My boards (signed-in only) */}
           {user ? (
