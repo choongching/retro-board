@@ -1,53 +1,143 @@
-# retro-board
+# JomRetro
 
-Multiplayer retrospective board. Vite + React + TypeScript on the frontend, Supabase Realtime (Broadcast + Presence) for live sync. No accounts, no database in v1 — state lives only in the open browser tabs of a room.
+**Quick team retrospectives. No setup, no friction.**
 
-## Local development
+Live at **[retro-board-green.vercel.app](https://retro-board-green.vercel.app)**.
+
+JomRetro is a multiplayer retrospective board. Open a room, share a code or invite link with your team, and run a retro together in real time. No accounts to join, no software to install. Hosts who want to save and revisit their boards can sign in with a magic link.
+
+---
+
+## What you can do
+
+### As a participant (no account)
+- Open a teammate's invite link
+- Type your name → you're in
+- Add cards, vote on cards, drag them between columns
+- See teammates' cursors and avatars in real time
+- Export the retro as Markdown or JSON
+
+### As a host (free, magic-link sign-in)
+- Create persistent retros that survive a refresh
+- Pick from three formats: **Went Well / To Improve / Actions**, **Start / Stop / Continue**, **Sailboat**
+- Rename boards inline (only you can edit yours)
+- See all your past retros in **My boards**, click into any to reopen
+- Copy a clean invite link (`/join/<code>`) so participants always land on the name prompt before the board loads
+- Delete boards (cards cascade)
+- Import a JSON export to start a new retro from a saved one
+- Toggle anonymous mode and reveal cards on demand
+
+### Live for everyone
+- Real-time card sync across every connected tab
+- Real-time cursor positions
+- Real-time avatar presence
+- Anonymous mode + reveal flow for blind voting
+
+---
+
+## How it works (UX flows)
+
+### Hopping into someone else's retro
+```
+click invite link → /join/<code>
+  → enter name → /r/<code>
+  → board loads, you're in
+```
+No format choices, no avatar picker — just identity collection. The host already chose the format when they made the board.
+
+### Hosting your own
+```
+home → "I'm hosting" tab → enter email
+  → magic link in inbox → click → /auth/callback
+  → /r/<new-code>, board ready
+```
+Your board is saved to the database the moment you create it. Close the tab, come back tomorrow, it's still there.
+
+### Sharing
+Inside the board, click the share icon next to the room code. That copies an invite link (`/join/<code>`) — recipients always see the name prompt before the board, even if they've used JomRetro before.
+
+---
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Frontend | Vite + React 19 + TypeScript |
+| Routing | react-router-dom v7 |
+| Realtime sync | Supabase Realtime (Broadcast + Presence) |
+| Persistence | Supabase Postgres + Row-Level Security |
+| Auth | Supabase Auth (email magic link) |
+| Email delivery | Resend (custom SMTP) |
+| Hosting | Vercel |
+| Type/build | TypeScript strict + `tsc -b && vite build` |
+
+### How realtime works
+Every room is a Supabase Realtime channel keyed `retro:<code>`. Card actions broadcast as state patches; the longest-connected tab acts as the source of truth for late joiners. Cursors ride a separate, throttled broadcast. Card mutations also fire-and-forget into the `cards` table when the board has a DB row, so refreshing or closing all tabs doesn't lose anything.
+
+### How auth works
+Sign-in is magic-link only — no passwords. Supabase issues a single-use code, the email link drops you on `/auth/callback`, the client exchanges it for a session, and a Postgres trigger auto-creates a `profiles` row keyed to the auth user. Anonymous participants get a `localStorage` profile with a UUID + display name + auto-derived color; they coexist with real auth identities without any link between them.
+
+### How permissions work
+Boards are share-link-trusted: anyone with the code can read, post, vote, edit text, and delete cards. Only the **owner** of a board can rename or delete the board itself — that's enforced by Row-Level Security on the server, not just the UI.
+
+---
+
+## Features at a glance
+
+- ✓ Real-time multiplayer (cards, cursors, avatars)
+- ✓ Three retro formats out of the box
+- ✓ Inline-editable board titles (creator only)
+- ✓ Anonymous mode + reveal
+- ✓ Markdown + JSON export
+- ✓ JSON import (start a fresh board from a previous one)
+- ✓ Persistent boards for signed-in creators
+- ✓ "My boards" history with delete
+- ✓ Copy-invite-link with name-collection guarantee
+- ✓ Inline form validation everywhere
+- ✓ Light, design-tokenised UI consistent across signed-in and anonymous flows
+
+### Known limitations
+- In-column card reorder doesn't persist across reloads (we order by creation time on reload). Cross-column moves do persist.
+- Anonymous-created boards stay ephemeral by design — sign in to host saved retros.
+- Two users voting on the same card at the exact same instant can race; last write wins on the votes array. Rare in practice.
+
+---
+
+## Running locally
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
 ```
 
-Requires `.env.local` with:
+Create `.env.local`:
 
 ```
-VITE_SUPABASE_URL=https://<project>.supabase.co
-VITE_SUPABASE_ANON_KEY=<anon JWT from Supabase API Keys → "Legacy anon" tab>
+VITE_SUPABASE_URL=https://<your-project>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon JWT — Legacy anon tab in Supabase API Keys>
 ```
 
-The legacy `anon` JWT (`eyJ...`) is required — Supabase's newer `sb_publishable_*` keys are not yet accepted by the Realtime WebSocket endpoint.
+The Realtime WebSocket needs the **legacy** `anon` JWT (`eyJ...`), not the newer `sb_publishable_*` keys.
 
-## Build & deploy
+For auth flows to work locally, add `http://localhost:5173` to **Authentication → URL Configuration → Additional Redirect URLs** in your Supabase dashboard.
+
+## Building
 
 ```bash
 npm run build    # outputs to dist/
 ```
 
-Deployed to Vercel (`retro-board-green.vercel.app`). Auto-deploys on push to `main`. SPA routing fallback is configured in `vercel.json`.
+Vercel auto-deploys on push to `main`. SPA routing fallback is in `vercel.json`.
 
-## Architecture summary
+## Database
 
-- **No backend code.** All sync goes through Supabase Realtime channels keyed by room code (`retro:<code>`).
-- **State is ephemeral.** Cards/votes/settings live in memory on each connected client. When the last person leaves, room state evaporates. Markdown export is the persistence story.
-- **Late joiners** receive current state from the longest-connected user (the "host") via a targeted broadcast.
-- **Cursor positions** ride a separate broadcast event throttled to ~10fps, suppressed during text editing.
+Migrations live in `supabase/migrations/` and have already been applied to the live project. Schema:
 
-## Operations
+- `profiles` — auth users, auto-populated by trigger
+- `boards` — `code`, `title`, `format`, `owner_id`, `last_active_at`
+- `cards` — `board_id`, `col`, `text`, `author_id`, `author_name`, `votes[]`, `created_at`
 
-### Monitor Supabase usage
-
-Free tier limits: **200 concurrent Realtime connections**, **2M Realtime messages/month**.
-
-Check usage weekly at:
-- Supabase Dashboard → your project → **Reports** → **Realtime** (concurrent connections, messages over time)
-- Or: Project Settings → Usage tab
-
-The cursor broadcast is the only meaningful cost vector. If monthly messages climb above ~1.5M, drop the cursor throttle in `src/screens/Board.tsx` from 100ms to 200ms (halves volume; still smooth).
-
-### Vercel build pinning
-
-`vercel.json` pins `installCommand: npm install` and `buildCommand: npm run build` so the build is deterministic against `package-lock.json` regardless of dashboard auto-detection.
+Row-Level Security: all reads are public (share-link model), inserts/updates are open on `cards`, board updates and deletes are owner-only. See `supabase/migrations/0002_rls_policies.sql` and `0004_relax_cards_delete.sql` for the exact policies.
 
 ## File map
 
@@ -55,16 +145,37 @@ The cursor broadcast is the only meaningful cost vector. If monthly messages cli
 src/
   main.tsx, App.tsx, styles.css, data.ts, icons.tsx
   lib/
-    supabase.ts          # Supabase client (eventsPerSecond: 100)
-    profile.ts           # localStorage profile { id, name, color }
-    useRetroChannel.ts   # the room hook — broadcast/presence/cursors
+    supabase.ts          # Supabase client
+    auth.tsx             # AuthProvider + useAuth (session, signIn, signOut)
+    profile.ts           # localStorage anonymous profile
+    useRetroChannel.ts   # the room hook — broadcast / presence / DB write-through
+    boardsApi.ts         # CRUD on boards + cards
+    retroExport.ts       # JSON export/import schema
   screens/
-    Home.tsx             # workspace decoration, navigation entry
-    Join.tsx             # name + room code + format select
-    Board.tsx            # main retro screen, hooks Realtime
+    Home.tsx             # split-action landing for anonymous, board list for signed-in
+    Join.tsx             # name + code (invite-link participants)
+    SignIn.tsx           # magic-link form (fallback)
+    AuthCallback.tsx     # exchanges ?code= for a session
+    Board.tsx            # main retro screen
   components/
     BoardTopbar, BoardSurface, ColumnsSurface, Column,
     SailboatSurface, SailboatZone, StickyCard, Composer,
-    PresenceCursors, PresenceStack, ProfilePill, RetroRow,
-    RetroWordmark, FormatGlyph
+    PresenceCursors, PresenceStack, ProfilePill, UserMenu,
+    AuthPill, RetroWordmark, FormatGlyph
+supabase/
+  migrations/            # init schema, RLS, RPC revokes, RLS relax
 ```
+
+## Operating notes
+
+### Supabase free-tier ceilings
+- 200 concurrent Realtime connections
+- 2M Realtime messages / month
+
+The cursor broadcast is the only meaningful cost vector. If monthly messages approach ~1.5M, raise the cursor throttle in `src/screens/Board.tsx` from 100ms to 200ms — halves volume, still smooth.
+
+### Custom SMTP
+Magic-link emails go via **Resend** (configured in Supabase → Authentication → Emails → SMTP Settings) to dodge the built-in 3-4/hour rate limit.
+
+### Vercel build pinning
+`vercel.json` pins `installCommand: npm install` and `buildCommand: npm run build` so builds are deterministic against `package-lock.json`.
