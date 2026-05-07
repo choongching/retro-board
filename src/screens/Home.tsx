@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FORMATS } from '../data';
+import { FORMATS, colorForName } from '../data';
 import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { AuthPill } from '../components/AuthPill';
 import { UserMenu } from '../components/UserMenu';
 import { FormatGlyph } from '../components/FormatGlyph';
-import { loadProfile } from '../lib/profile';
+import { loadProfile, saveProfile } from '../lib/profile';
 import type { Profile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 import { useAuth } from '../lib/auth';
@@ -62,6 +62,7 @@ export function Home() {
   const [importError, setImportError] = useState<string | null>(null);
   const [myBoards, setMyBoards] = useState<Board[] | null>(null);
   const [joinCode, setJoinCode] = useState('');
+  const [joinName, setJoinName] = useState(profile?.name ?? '');
 
   useEffect(() => {
     if (!user) { setMyBoards(null); return; }
@@ -238,8 +239,14 @@ export function Home() {
                   className="surface"
                   onSubmit={(e) => {
                     e.preventDefault();
+                    const trimmedName = joinName.trim();
                     const code = joinCode.trim().toUpperCase();
-                    if (code) navigate(`/join/${code}`);
+                    if (!trimmedName || !code) return;
+                    saveProfile({
+                      name: trimmedName,
+                      color: profile?.color ?? colorForName(trimmedName),
+                    });
+                    navigate(`/r/${code}`);
                   }}
                   style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
@@ -248,22 +255,38 @@ export function Home() {
                       Have a code from a teammate? Hop right in.
                     </div>
                   </div>
-                  <div className="field-frame">
-                    <input
-                      className="field-input mono code-input"
-                      placeholder="ABC-1234"
-                      value={joinCode}
-                      onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                      autoComplete="off"
-                      spellCheck="false"
-                      aria-label="Room code"
-                    />
+                  <div className="field-group">
+                    <label className="field-label" htmlFor="home-join-name">Your name</label>
+                    <div className="field-frame">
+                      <input
+                        id="home-join-name"
+                        className="field-input"
+                        placeholder="Casey Lin"
+                        value={joinName}
+                        onChange={(e) => setJoinName(e.target.value)}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label" htmlFor="home-join-code">Room code</label>
+                    <div className="field-frame">
+                      <input
+                        id="home-join-code"
+                        className="field-input mono code-input"
+                        placeholder="ABC-1234"
+                        value={joinCode}
+                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                        autoComplete="off"
+                        spellCheck="false"
+                      />
+                    </div>
                   </div>
                   <button
                     type="submit"
                     className="btn lg"
                     style={{ justifyContent: 'center' }}
-                    disabled={!joinCode.trim()}>
+                    disabled={!joinName.trim() || !joinCode.trim()}>
                     Join
                   </button>
                   <div className="tiny muted" style={{ textAlign: 'center' }}>
