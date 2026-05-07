@@ -142,6 +142,12 @@ function BoardInner({
     showToast('Copied room code');
   }, [code, showToast]);
 
+  const handleCopyInviteLink = useCallback(() => {
+    const url = `${window.location.origin}/join/${code}`;
+    navigator.clipboard?.writeText(url).catch(() => {});
+    showToast('Invite link copied');
+  }, [code, showToast]);
+
   const exportMarkdown = useCallback(() => {
     const lines: string[] = [];
     lines.push(`# ${state.title}`);
@@ -238,6 +244,7 @@ function BoardInner({
         onExportJson={exportJsonHandler}
         onLeave={onLeave}
         onCopyCode={handleCopyCode}
+        onCopyInviteLink={handleCopyInviteLink}
         onChangeProfile={onChangeProfile}
         onProfileChange={setProfile}
       />

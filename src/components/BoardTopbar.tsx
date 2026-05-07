@@ -11,7 +11,7 @@ import type { Profile } from '../lib/profile';
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
   canEditTitle, onTitleChange,
-  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onChangeProfile, onProfileChange,
+  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onCopyInviteLink, onChangeProfile, onProfileChange,
 }: {
   code: string;
   title: string;
@@ -28,6 +28,7 @@ export function BoardTopbar({
   onExportJson: () => void;
   onLeave: () => void;
   onCopyCode: () => void;
+  onCopyInviteLink: () => void;
   onChangeProfile: () => void;
   onProfileChange: (next: Profile) => void;
 }) {
@@ -126,6 +127,9 @@ export function BoardTopbar({
         <button className="btn sm" onClick={onCopyCode} title="Copy room code"
           style={{ marginLeft: 4, background: 'var(--color-surface-2)', borderColor: 'transparent' }}>
           <span className="mono" style={{ letterSpacing: '0.06em', color: 'var(--color-text-2)' }}>{code}</span>
+        </button>
+        <button className="btn icon sm" onClick={onCopyInviteLink} title="Copy invite link — recipients enter their name before the board loads">
+          <Icon name="share" size={12} />
         </button>
       </div>
 
