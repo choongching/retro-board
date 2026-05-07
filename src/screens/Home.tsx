@@ -233,7 +233,8 @@ export function Home() {
               {/* Mode toggle (Join / Host) */}
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
                 <div role="tablist" aria-label="Landing mode" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  width: 440, maxWidth: '100%',
                   padding: 4, borderRadius: 999,
                   background: 'var(--color-surface-2)',
                   border: '1px solid var(--color-divider)',
@@ -344,7 +345,7 @@ function ModeTab({ active, onClick, children }: {
       aria-selected={active}
       onClick={onClick}
       style={{
-        height: 30, padding: '0 14px',
+        flex: 1, height: 36, padding: '0 12px',
         borderRadius: 999, border: 0, cursor: 'pointer',
         fontSize: 13, fontWeight: 500,
         background: active ? 'var(--color-surface)' : 'transparent',
