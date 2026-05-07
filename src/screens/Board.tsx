@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { FORMATS } from '../data';
 import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
@@ -111,13 +112,7 @@ function BoardInner({
     return [...seen.values()];
   }, [users]);
 
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimerRef = useRef<number | null>(null);
-  const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = window.setTimeout(() => setToast(null), 1800);
-  }, []);
+  const showToast = useCallback((msg: string) => { toast(msg); }, []);
 
   // Card mutations — wrappers preserve the prototype's prop signatures
   const handleAdd = useCallback((col: ColumnId, text: string) => {
@@ -269,8 +264,6 @@ function BoardInner({
       />
 
       <PresenceCursors users={users} cursors={cursors} selfId={profile.id} />
-
-      {toast && <div className="toast">{toast}</div>}
     </div>
   );
 }

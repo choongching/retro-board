@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { AuthProvider } from './lib/auth';
 import { Home } from './screens/Home';
 import { Join } from './screens/Join';
@@ -19,6 +20,21 @@ export default function App() {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        <Toaster
+          position="bottom-center"
+          theme="light"
+          toastOptions={{
+            style: {
+              background: 'var(--color-text)',
+              color: 'var(--color-bg)',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '13px',
+              padding: '10px 14px',
+              boxShadow: 'var(--shadow-lg)',
+            },
+          }}
+        />
       </AuthProvider>
     </BrowserRouter>
   );
