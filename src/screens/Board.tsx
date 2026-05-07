@@ -12,6 +12,7 @@ import type { Board as DbBoard } from '../lib/boardsApi';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
+import { RetroWordmark } from '../components/RetroWordmark';
 
 type ImportedNavState = { importedTitle?: string; importedCards?: Card[] };
 
@@ -46,6 +47,10 @@ export function Board() {
   if (lookup.status === 'loading') return null;
 
   const imported = (location.state as ImportedNavState | null) ?? undefined;
+
+  if (!lookup.board && !imported) {
+    return <BoardNotFound code={code} onGoHome={() => navigate('/')} />;
+  }
 
   return (
     <BoardInner
@@ -266,6 +271,31 @@ function BoardInner({
       <PresenceCursors users={users} cursors={cursors} selfId={profile.id} />
 
       {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+function BoardNotFound({ code, onGoHome }: { code: string; onGoHome: () => void }) {
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand"><RetroWordmark /></div>
+      </header>
+      <main style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 380 }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
+            We couldn't find that retro
+          </h1>
+          <div className="muted" style={{ marginTop: 8, fontSize: 14 }}>
+            No retro exists with the code{' '}
+            <span className="mono" style={{ color: 'var(--color-text-2)' }}>{code}</span>.
+            It may have been deleted, or the link might be wrong.
+          </div>
+          <button className="btn accent" style={{ marginTop: 18 }} onClick={onGoHome}>
+            Back home
+          </button>
+        </div>
+      </main>
     </div>
   );
 }

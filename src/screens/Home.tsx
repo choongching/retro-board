@@ -10,7 +10,7 @@ import { loadProfile, saveProfile } from '../lib/profile';
 import type { Profile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 import { useAuth } from '../lib/auth';
-import { bulkInsertCards, createBoard, deleteBoard, getMyBoards } from '../lib/boardsApi';
+import { bulkInsertCards, createBoard, deleteBoard, getBoardByCode, getMyBoards } from '../lib/boardsApi';
 import type { Board } from '../lib/boardsApi';
 
 function relativeTime(iso: string): string {
@@ -70,6 +70,7 @@ export function Home() {
 
   const [joinNameError, setJoinNameError] = useState<string | null>(null);
   const [joinCodeError, setJoinCodeError] = useState<string | null>(null);
+  const [joinSubmitting, setJoinSubmitting] = useState(false);
   const [hostEmailError, setHostEmailError] = useState<string | null>(null);
 
   const validateName = (v: string) => v.trim() ? null : 'Please enter your name.';
@@ -283,7 +284,7 @@ export function Home() {
                   <form
                     className="surface"
                     noValidate
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
                       const nameErr = validateName(joinName);
                       const codeErr = validateCode(joinCode);
@@ -292,6 +293,13 @@ export function Home() {
                       if (nameErr || codeErr) return;
                       const trimmedName = joinName.trim();
                       const code = joinCode.trim().toUpperCase();
+                      setJoinSubmitting(true);
+                      const board = await getBoardByCode(code);
+                      setJoinSubmitting(false);
+                      if (!board) {
+                        setJoinCodeError("We couldn't find a retro with that code. Double-check it with your teammate.");
+                        return;
+                      }
                       saveProfile({
                         name: trimmedName,
                         color: profile?.color ?? colorForName(trimmedName),
@@ -341,8 +349,9 @@ export function Home() {
                     <button
                       type="submit"
                       className="btn accent lg"
-                      style={{ justifyContent: 'center' }}>
-                      Let's go
+                      style={{ justifyContent: 'center' }}
+                      disabled={joinSubmitting}>
+                      {joinSubmitting ? 'Looking up…' : "Let's go"}
                     </button>
                     <div className="tiny muted" style={{ textAlign: 'center' }}>
                       No account, no signup. Just retro.
