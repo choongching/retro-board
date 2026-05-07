@@ -61,7 +61,7 @@ export function SignIn() {
           {sentTo ? (
             <div className="surface" style={{ padding: '24px', textAlign: 'center' }}>
               <div style={{
-                width: 44, height: 44, borderRadius: 999, margin: '0 auto 16px',
+                width: 44, height: 44, borderRadius: 'var(--radius-pill)', margin: '0 auto 16px',
                 background: 'var(--color-brand-subtle)', color: 'var(--color-brand)',
                 display: 'grid', placeItems: 'center',
               }}>

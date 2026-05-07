@@ -235,9 +235,8 @@ export function Home() {
                 <div role="tablist" aria-label="Landing mode" style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   width: 440, maxWidth: '100%',
-                  padding: 4, borderRadius: 999,
+                  padding: 4, borderRadius: 'var(--radius-pill)',
                   background: 'var(--color-surface-2)',
-                  border: '1px solid var(--color-divider)',
                 }}>
                   <ModeTab active={landingMode === 'join'} onClick={() => setLandingMode('join')}>I'm joining</ModeTab>
                   <ModeTab active={landingMode === 'host'} onClick={() => setLandingMode('host')}>I'm hosting</ModeTab>
@@ -346,7 +345,7 @@ function ModeTab({ active, onClick, children }: {
       onClick={onClick}
       style={{
         flex: 1, height: 36, padding: '0 12px',
-        borderRadius: 999, border: 0, cursor: 'pointer',
+        borderRadius: 'var(--radius-pill)', border: 0, cursor: 'pointer',
         fontSize: 13, fontWeight: 500,
         background: active ? 'var(--color-surface)' : 'transparent',
         color: active ? 'var(--color-text)' : 'var(--color-text-muted)',
