@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FORMATS } from '../data';
-import type { ColumnId, FormatId } from '../data';
+import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
 import { useRetroChannel } from '../lib/useRetroChannel';
+import { buildExport, downloadJson } from '../lib/retroExport';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
+
+type ImportedNavState = { importedTitle?: string; importedCards?: Card[] };
 
 function isFormatId(v: string | null): v is FormatId {
   return v === 'classic' || v === 'ssc' || v === 'sailboat';
@@ -15,29 +18,34 @@ function isFormatId(v: string | null): v is FormatId {
 export function Board() {
   const { code } = useParams<{ code: string }>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const profile = loadProfile();
 
   if (!code) return <Navigate to="/" replace />;
   if (!profile) return <Navigate to={`/join/${code}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} replace />;
 
-  return <BoardInner code={code} profile={profile} formatParam={searchParams.get('format')} onLeave={() => navigate('/')} onChangeProfile={() => navigate(`/join/${code}`)} />;
+  const imported = (location.state as ImportedNavState | null) ?? undefined;
+
+  return <BoardInner code={code} profile={profile} formatParam={searchParams.get('format')} imported={imported} onLeave={() => navigate('/')} onChangeProfile={() => navigate(`/join/${code}`)} />;
 }
 
 function BoardInner({
-  code, profile, formatParam, onLeave, onChangeProfile,
+  code, profile, formatParam, imported, onLeave, onChangeProfile,
 }: {
   code: string;
   profile: NonNullable<ReturnType<typeof loadProfile>>;
   formatParam: string | null;
+  imported?: ImportedNavState;
   onLeave: () => void;
   onChangeProfile: () => void;
 }) {
   const initialFormat: FormatId = isFormatId(formatParam) ? formatParam : 'classic';
   const initialState = useMemo(() => ({
     format: initialFormat,
-    title: `Retro ${code}`,
-  }), [initialFormat, code]);
+    title: imported?.importedTitle ?? `Retro ${code}`,
+    cards: imported?.importedCards ?? [],
+  }), [initialFormat, code, imported]);
 
   const {
     state, users, cursors,
@@ -84,7 +92,7 @@ function BoardInner({
     showToast('Copied room code');
   }, [code, showToast]);
 
-  const exportRetro = useCallback(() => {
+  const exportMarkdown = useCallback(() => {
     const lines: string[] = [];
     lines.push(`# ${state.title}`);
     lines.push(`Code: ${code} · ${fmt.name} · ${new Date().toLocaleDateString()}`);
@@ -110,6 +118,18 @@ function BoardInner({
     URL.revokeObjectURL(url);
     showToast('Exported as Markdown');
   }, [state.title, state.cards, code, fmt, participants, showToast]);
+
+  const exportJsonHandler = useCallback(() => {
+    const data = buildExport({
+      code,
+      title: state.title,
+      format: state.format,
+      cards: state.cards,
+      exportedBy: profile.name,
+    });
+    downloadJson(data, `${code}-retro.json`);
+    showToast('Exported as JSON');
+  }, [code, state.title, state.format, state.cards, profile.name, showToast]);
 
   // Cursor publishing — throttled to ~10 Hz; suppressed while typing in a textarea
   const surfaceRef = useRef<HTMLElement | null>(null);
@@ -162,7 +182,8 @@ function BoardInner({
         revealed={state.revealed}
         onToggleAnon={handleToggleAnon}
         onReveal={handleReveal}
-        onExport={exportRetro}
+        onExportMarkdown={exportMarkdown}
+        onExportJson={exportJsonHandler}
         onLeave={onLeave}
         onCopyCode={handleCopyCode}
         onChangeProfile={onChangeProfile}

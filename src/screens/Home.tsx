@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FORMATS, MOCK_WORKSPACES } from '../data';
 import type { FormatId } from '../data';
@@ -8,6 +8,7 @@ import { ProfilePill } from '../components/ProfilePill';
 import { FormatGlyph } from '../components/FormatGlyph';
 import { RetroRow } from '../components/RetroRow';
 import { loadProfile } from '../lib/profile';
+import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 
 function makeCode() {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -35,6 +36,31 @@ export function Home() {
     }
   };
   const onSetProfile = () => navigate('/join');
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const onImportClick = () => {
+    setImportError(null);
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const text = await file.text();
+    const result = parseAndValidate(text);
+    if (!result.ok) { setImportError(result.error); return; }
+    const newCode = makeCode();
+    const cards = stripAuthorsAndVotes(result.data.cards);
+    const navState = { importedTitle: result.data.title, importedCards: cards };
+    if (!profile?.name) {
+      navigate(`/join/${newCode}?format=${result.data.format}`, { state: navState });
+    } else {
+      navigate(`/r/${newCode}?format=${result.data.format}`, { state: navState });
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -71,14 +97,35 @@ export function Home() {
               <div className="muted" style={{ marginTop: 6 }}>Run a quick retrospective with your team. No setup.</div>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn" onClick={onImportClick} title="Start a new retro from a JSON file">
+                <Icon name="download" /> Import JSON
+              </button>
               <button className="btn" onClick={() => onJoin()}>
                 <Icon name="key" /> Join with code
               </button>
               <button className="btn accent" onClick={() => onCreate(ws.id)}>
                 <Icon name="plus" /> New retro
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json,.json"
+                onChange={handleImportFile}
+                style={{ display: 'none' }}
+              />
             </div>
           </div>
+
+          {importError && (
+            <div className="surface" style={{
+              marginBottom: 20, padding: '10px 14px',
+              background: 'color-mix(in oklch, #C77B58 12%, var(--color-bg))',
+              borderColor: 'color-mix(in oklch, #C77B58 28%, var(--color-border))',
+            }}>
+              <div style={{ fontWeight: 500, fontSize: 13, color: '#9c4326' }}>Import failed</div>
+              <div className="tiny muted" style={{ marginTop: 2 }}>{importError}</div>
+            </div>
+          )}
 
           {/* Quick start cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 36 }}>

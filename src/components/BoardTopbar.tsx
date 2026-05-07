@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { PresenceStack } from './PresenceStack';
 import { ProfilePill } from './ProfilePill';
@@ -7,7 +8,7 @@ import type { Profile } from '../lib/profile';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
-  onToggleAnon, onReveal, onExport, onLeave, onCopyCode, onChangeProfile,
+  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onChangeProfile,
 }: {
   code: string;
   title: string;
@@ -18,13 +19,34 @@ export function BoardTopbar({
   revealed: boolean;
   onToggleAnon: () => void;
   onReveal: () => void;
-  onExport: () => void;
+  onExportMarkdown: () => void;
+  onExportJson: () => void;
   onLeave: () => void;
   onCopyCode: () => void;
   onChangeProfile: () => void;
 }) {
-  // fmt is currently unused in render but accepted to mirror prototype's prop signature
   void fmt;
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    const escHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExportOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    document.addEventListener('keydown', escHandler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', escHandler);
+    };
+  }, [exportOpen]);
+
   return (
     <header className="topbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
@@ -57,9 +79,30 @@ export function BoardTopbar({
           <Icon name={anonMode ? 'eye-off' : 'eye'} size={13} />
         </button>
 
-        <button className="btn icon" onClick={onExport} title="Export retro">
-          <Icon name="download" size={13} />
-        </button>
+        <div ref={exportRef} style={{ position: 'relative' }}>
+          <button className="btn icon" onClick={() => setExportOpen((v) => !v)} title="Export retro">
+            <Icon name="download" size={13} />
+          </button>
+          {exportOpen && (
+            <div className="surface" role="menu" style={{
+              position: 'absolute', top: 38, right: 0, zIndex: 20,
+              padding: 4, minWidth: 160,
+              boxShadow: 'var(--shadow-lg)',
+              display: 'flex', flexDirection: 'column', gap: 2,
+            }}>
+              <button className="btn ghost" role="menuitem"
+                onClick={() => { setExportOpen(false); onExportMarkdown(); }}
+                style={{ justifyContent: 'flex-start', height: 32 }}>
+                Markdown (.md)
+              </button>
+              <button className="btn ghost" role="menuitem"
+                onClick={() => { setExportOpen(false); onExportJson(); }}
+                style={{ justifyContent: 'flex-start', height: 32 }}>
+                JSON (.json)
+              </button>
+            </div>
+          )}
+        </div>
 
         <PresenceStack participants={participants} />
         <ProfilePill profile={profile} onClick={onChangeProfile} />
