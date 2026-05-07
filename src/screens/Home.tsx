@@ -246,8 +246,6 @@ export function Home() {
                 </div>
               </div>
 
-              {importError && <ImportErrorCard message={importError} />}
-
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 {landingMode === 'join' ? (
                   <form
@@ -328,12 +326,6 @@ export function Home() {
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div style={{ textAlign: 'center', marginTop: 22 }}>
-                <button type="button" className="quiet-link tiny" onClick={onImportClick}>
-                  Have a JSON export? Start a new retro from a file →
-                </button>
               </div>
             </>
           )}
