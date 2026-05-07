@@ -262,10 +262,10 @@ export function Home() {
               {/* Anonymous landing — split-action */}
               <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 28 }}>
                 <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
-                  Run a retro in seconds.
+                  Retros that don't drag.
                 </h1>
                 <div className="muted" style={{ marginTop: 6 }}>
-                  Got a code? Drop in. Hosting? Sign in and you're set.
+                  Spin up a board, share the link, get to the good stuff.
                 </div>
               </div>
 
