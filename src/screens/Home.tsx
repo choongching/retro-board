@@ -4,7 +4,6 @@ import { FORMATS } from '../data';
 import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
-import { ProfilePill } from '../components/ProfilePill';
 import { AuthPill } from '../components/AuthPill';
 import { UserMenu } from '../components/UserMenu';
 import { FormatGlyph } from '../components/FormatGlyph';
@@ -62,6 +61,7 @@ export function Home() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [myBoards, setMyBoards] = useState<Board[] | null>(null);
+  const [joinCode, setJoinCode] = useState('');
 
   useEffect(() => {
     if (!user) { setMyBoards(null); return; }
@@ -120,109 +120,85 @@ export function Home() {
           {user ? (
             <UserMenu profile={profile} onChangeProfile={onSetProfile} />
           ) : (
-            <>
-              <AuthPill />
-              <ProfilePill profile={profile} onClick={onSetProfile} />
-            </>
+            <AuthPill />
           )}
         </div>
       </header>
 
       <main style={{ flex: 1, overflow: 'auto', padding: '36px 0 60px' }}>
         <div style={{ maxWidth: 920, margin: '0 auto', padding: '0 32px' }}>
-          {/* Hero */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 }}>
-            <div>
-              <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.02em', fontWeight: 600 }}>
-                {user ? 'Retros' : 'Join a retro'}
-              </h1>
-              <div className="muted" style={{ marginTop: 6 }}>
-                {user
-                  ? 'Run a quick retrospective with your team. No setup.'
-                  : 'Got a room code? Hop in. Sign in to create and save retros across sessions.'}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn" onClick={onImportClick} title="Start a new retro from a JSON file">
-                <Icon name="download" /> Import JSON
-              </button>
-              <button className="btn" onClick={() => onJoin()}>
-                <Icon name="key" /> Join with code
-              </button>
-              {user ? (
-                <button className="btn accent" onClick={() => onCreate()}>
-                  <Icon name="plus" /> New retro
-                </button>
-              ) : (
-                <button className="btn accent" onClick={() => navigate('/signin')}>
-                  Sign in
-                </button>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={handleImportFile}
-                style={{ display: 'none' }}
-              />
-            </div>
-          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json,.json"
+            onChange={handleImportFile}
+            style={{ display: 'none' }}
+          />
 
-          {importError && (
-            <div className="surface" style={{
-              marginBottom: 20, padding: '10px 14px',
-              background: 'color-mix(in oklch, #C77B58 12%, var(--color-bg))',
-              borderColor: 'color-mix(in oklch, #C77B58 28%, var(--color-border))',
-            }}>
-              <div style={{ fontWeight: 500, fontSize: 13, color: '#9c4326' }}>Import failed</div>
-              <div className="tiny muted" style={{ marginTop: 2 }}>{importError}</div>
-            </div>
-          )}
-
-          {/* Quick start cards (creators only) */}
-          {user && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 36 }}>
-            {Object.values(FORMATS).map((f) => (
-              <button
-                key={f.id}
-                onClick={() => onCreate(f.id)}
-                className="surface"
-                style={{
-                  textAlign: 'left', padding: 16,
-                  cursor: 'pointer', background: 'var(--color-surface)',
-                  display: 'flex', flexDirection: 'column', gap: 10,
-                  minHeight: 120, transition: 'border-color .12s, transform .08s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-brand-line)')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}>
-                <FormatGlyph format={f.id} />
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: 2 }}>{f.name}</div>
-                  <div className="tiny muted">{f.desc}</div>
-                </div>
-                <div style={{ display: 'flex', gap: 4, marginTop: 'auto' }}>
-                  {f.columns.map((c) => (
-                    <div key={c.id} style={{
-                      flex: 1, height: 4, borderRadius: 999,
-                      background: c.accent, opacity: 0.5,
-                    }} />
-                  ))}
-                </div>
-              </button>
-            ))}
-          </div>
-          )}
-
-          {/* My boards (signed-in only) */}
           {user ? (
             <>
+              {/* Hero */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 }}>
+                <div>
+                  <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.02em', fontWeight: 600 }}>Retros</h1>
+                  <div className="muted" style={{ marginTop: 6 }}>
+                    Run a quick retrospective with your team. No setup.
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn" onClick={onImportClick} title="Start a new retro from a JSON file">
+                    <Icon name="download" /> Import JSON
+                  </button>
+                  <button className="btn" onClick={() => onJoin()}>
+                    <Icon name="key" /> Join with code
+                  </button>
+                  <button className="btn accent" onClick={() => onCreate()}>
+                    <Icon name="plus" /> New retro
+                  </button>
+                </div>
+              </div>
+
+              {importError && <ImportErrorCard message={importError} />}
+
+              {/* Quick start cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 36 }}>
+                {Object.values(FORMATS).map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => onCreate(f.id)}
+                    className="surface"
+                    style={{
+                      textAlign: 'left', padding: 16,
+                      cursor: 'pointer', background: 'var(--color-surface)',
+                      display: 'flex', flexDirection: 'column', gap: 10,
+                      minHeight: 120, transition: 'border-color .12s, transform .08s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-brand-line)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}>
+                    <FormatGlyph format={f.id} />
+                    <div>
+                      <div style={{ fontWeight: 600, marginBottom: 2 }}>{f.name}</div>
+                      <div className="tiny muted">{f.desc}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 'auto' }}>
+                      {f.columns.map((c) => (
+                        <div key={c.id} style={{
+                          flex: 1, height: 4, borderRadius: 999,
+                          background: c.accent, opacity: 0.5,
+                        }} />
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* My boards */}
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
                 <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--color-text-2)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
                   My boards
                 </h2>
                 {myBoards && <span className="tiny muted">{myBoards.length} {myBoards.length === 1 ? 'retro' : 'retros'}</span>}
               </div>
-
               {myBoards === null ? (
                 <div className="muted tiny" style={{ padding: 24, textAlign: 'center' }}>Loading…</div>
               ) : myBoards.length === 0 ? (
@@ -244,12 +220,100 @@ export function Home() {
               )}
             </>
           ) : (
-            <div className="muted tiny" style={{ marginTop: 18, textAlign: 'center' }}>
-              Sign in to save your retros and revisit them later.
-            </div>
+            <>
+              {/* Anonymous landing — split-action */}
+              <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 36 }}>
+                <h1 style={{ margin: 0, fontSize: 36, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15 }}>
+                  Quick team retrospectives.
+                </h1>
+                <div className="muted" style={{ marginTop: 10, fontSize: 15 }}>
+                  Drop in with a code, or sign in to host your own.
+                </div>
+              </div>
+
+              {importError && <ImportErrorCard message={importError} />}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <form
+                  className="surface"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const code = joinCode.trim().toUpperCase();
+                    if (code) navigate(`/join/${code}`);
+                  }}
+                  style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Join a retro</h2>
+                    <div className="muted tiny" style={{ marginTop: 4 }}>
+                      Have a code from a teammate? Hop right in.
+                    </div>
+                  </div>
+                  <div className="field-frame">
+                    <input
+                      className="field-input mono code-input"
+                      placeholder="ABC-1234"
+                      value={joinCode}
+                      onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                      autoComplete="off"
+                      spellCheck="false"
+                      aria-label="Room code"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn lg"
+                    style={{ justifyContent: 'center' }}
+                    disabled={!joinCode.trim()}>
+                    Join
+                  </button>
+                  <div className="tiny muted" style={{ textAlign: 'center' }}>
+                    No account needed.
+                  </div>
+                </form>
+
+                <div className="surface" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Host your own</h2>
+                    <div className="muted tiny" style={{ marginTop: 4 }}>
+                      Create boards, save them, revisit anytime.
+                    </div>
+                  </div>
+                  <div style={{ flex: 1 }} />
+                  <button
+                    type="button"
+                    className="btn accent lg"
+                    onClick={() => navigate('/signin')}
+                    style={{ justifyContent: 'center' }}>
+                    Sign in with email
+                  </button>
+                  <div className="tiny muted" style={{ textAlign: 'center' }}>
+                    Free. Magic-link, no passwords.
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: 22 }}>
+                <button type="button" className="quiet-link tiny" onClick={onImportClick}>
+                  Have a JSON export? Start a new retro from a file →
+                </button>
+              </div>
+            </>
           )}
         </div>
       </main>
+    </div>
+  );
+}
+
+function ImportErrorCard({ message }: { message: string }) {
+  return (
+    <div className="surface" style={{
+      marginBottom: 20, padding: '10px 14px',
+      background: 'color-mix(in oklch, #C77B58 12%, var(--color-bg))',
+      borderColor: 'color-mix(in oklch, #C77B58 28%, var(--color-border))',
+    }}>
+      <div style={{ fontWeight: 500, fontSize: 13, color: '#9c4326' }}>Import failed</div>
+      <div className="tiny muted" style={{ marginTop: 2 }}>{message}</div>
     </div>
   );
 }
