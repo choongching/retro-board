@@ -2,15 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { colorForName, initials } from '../data';
 import { useAuth } from '../lib/auth';
+import { saveProfile } from '../lib/profile';
 import type { Profile } from '../lib/profile';
 
-export function UserMenu({ profile, onChangeProfile }: {
+export function UserMenu({ profile, onProfileChange }: {
   profile: Profile | null;
-  onChangeProfile: () => void;
+  onProfileChange: (next: Profile) => void;
 }) {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
+  const fallbackName = user?.email?.split('@')[0] ?? '';
+  const [editName, setEditName] = useState(profile?.name ?? '');
+
+  useEffect(() => { setEditName(profile?.name ?? ''); }, [profile?.name]);
 
   useEffect(() => {
     if (!open) return;
@@ -28,10 +33,19 @@ export function UserMenu({ profile, onChangeProfile }: {
 
   if (!user) return null;
 
-  const fallbackName = user.email?.split('@')[0] ?? '';
   const displayName = profile?.name || fallbackName;
   const avatarColor = profile?.color || colorForName(fallbackName || 'You');
   const avatarInitials = initials(displayName || '?');
+
+  const commitName = () => {
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === profile?.name) return;
+    const next = saveProfile({
+      name: trimmed,
+      color: profile?.color ?? colorForName(trimmed),
+    });
+    onProfileChange(next);
+  };
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
@@ -60,7 +74,7 @@ export function UserMenu({ profile, onChangeProfile }: {
           role="menu"
           style={{
             position: 'absolute', top: 42, right: 0, zIndex: 20,
-            minWidth: 240, padding: 6,
+            minWidth: 260, padding: 6,
             boxShadow: 'var(--shadow-lg)',
             display: 'flex', flexDirection: 'column', gap: 2,
           }}>
@@ -71,14 +85,31 @@ export function UserMenu({ profile, onChangeProfile }: {
             </div>
           </div>
           <div style={{ height: 1, background: 'var(--color-divider)', margin: '2px 0' }} />
-          <button
-            type="button"
-            className="btn ghost"
-            role="menuitem"
-            onClick={() => { setOpen(false); onChangeProfile(); }}
-            style={{ justifyContent: 'flex-start', height: 32 }}>
-            Change display name
-          </button>
+          <div style={{ padding: '6px 10px 8px' }}>
+            <label htmlFor="usermenu-display" className="tiny muted" style={{ display: 'block', marginBottom: 4 }}>
+              Display name
+            </label>
+            <div className="field-frame" style={{ padding: '4px 8px' }}>
+              <input
+                id="usermenu-display"
+                type="text"
+                className="field-input"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onBlur={commitName}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    commitName();
+                    setOpen(false);
+                  }
+                }}
+                placeholder={fallbackName || 'Your name'}
+                autoComplete="off"
+              />
+            </div>
+          </div>
+          <div style={{ height: 1, background: 'var(--color-divider)', margin: '2px 0' }} />
           <button
             type="button"
             className="btn ghost"

@@ -8,6 +8,7 @@ import { AuthPill } from '../components/AuthPill';
 import { UserMenu } from '../components/UserMenu';
 import { FormatGlyph } from '../components/FormatGlyph';
 import { loadProfile } from '../lib/profile';
+import type { Profile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 import { useAuth } from '../lib/auth';
 import { bulkInsertCards, createBoard, deleteBoard, getMyBoards } from '../lib/boardsApi';
@@ -33,7 +34,7 @@ function makeCode() {
 }
 
 export function Home() {
-  const profile = loadProfile();
+  const [profile, setProfile] = useState<Profile | null>(loadProfile());
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -56,7 +57,6 @@ export function Home() {
       navigate(`/r/${code}?format=${formatId}`);
     }
   };
-  const onSetProfile = () => navigate('/join');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -118,7 +118,7 @@ export function Home() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {user ? (
-            <UserMenu profile={profile} onChangeProfile={onSetProfile} />
+            <UserMenu profile={profile} onProfileChange={setProfile} />
           ) : (
             <AuthPill />
           )}
