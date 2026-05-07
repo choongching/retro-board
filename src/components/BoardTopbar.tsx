@@ -2,14 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icons';
 import { PresenceStack } from './PresenceStack';
 import { ProfilePill } from './ProfilePill';
+import { UserMenu } from './UserMenu';
 import type { Participant } from './StickyCard';
 import type { Format } from '../data';
+import { useAuth } from '../lib/auth';
 import type { Profile } from '../lib/profile';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
   canEditTitle, onTitleChange,
-  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onChangeProfile,
+  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onChangeProfile, onProfileChange,
 }: {
   code: string;
   title: string;
@@ -27,8 +29,10 @@ export function BoardTopbar({
   onLeave: () => void;
   onCopyCode: () => void;
   onChangeProfile: () => void;
+  onProfileChange: (next: Profile) => void;
 }) {
   void fmt;
+  const { user } = useAuth();
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement | null>(null);
   const [titleEditing, setTitleEditing] = useState(false);
@@ -163,8 +167,12 @@ export function BoardTopbar({
           )}
         </div>
 
-        <PresenceStack participants={participants} />
-        <ProfilePill profile={profile} onClick={onChangeProfile} />
+        <PresenceStack participants={participants} selfId={profile.id} />
+        {user ? (
+          <UserMenu profile={profile} onProfileChange={onProfileChange} />
+        ) : (
+          <ProfilePill profile={profile} onClick={onChangeProfile} />
+        )}
       </div>
     </header>
   );

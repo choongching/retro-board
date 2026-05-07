@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from '
 import { FORMATS } from '../data';
 import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
+import type { Profile } from '../lib/profile';
 import { useAuth } from '../lib/auth';
 import { useRetroChannel } from '../lib/useRetroChannel';
 import { buildExport, downloadJson } from '../lib/retroExport';
@@ -61,7 +62,7 @@ export function Board() {
 }
 
 function BoardInner({
-  code, profile, formatParam, imported, dbBoard, dbCards, onLeave, onChangeProfile,
+  code, profile: initialProfile, formatParam, imported, dbBoard, dbCards, onLeave, onChangeProfile,
 }: {
   code: string;
   profile: NonNullable<ReturnType<typeof loadProfile>>;
@@ -72,6 +73,7 @@ function BoardInner({
   onLeave: () => void;
   onChangeProfile: () => void;
 }) {
+  const [profile, setProfile] = useState<Profile>(initialProfile);
   const initialFormat: FormatId = dbBoard?.format ?? (isFormatId(formatParam) ? formatParam : 'classic');
   const initialState = useMemo(() => ({
     format: initialFormat,
@@ -237,6 +239,7 @@ function BoardInner({
         onLeave={onLeave}
         onCopyCode={handleCopyCode}
         onChangeProfile={onChangeProfile}
+        onProfileChange={setProfile}
       />
 
       <BoardSurface
