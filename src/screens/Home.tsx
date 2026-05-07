@@ -10,6 +10,8 @@ import { FormatGlyph } from '../components/FormatGlyph';
 import { RetroRow } from '../components/RetroRow';
 import { loadProfile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
+import { useAuth } from '../lib/auth';
+import { createBoard } from '../lib/boardsApi';
 
 function makeCode() {
   const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -21,6 +23,7 @@ function makeCode() {
 export function Home() {
   const profile = loadProfile();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeWs, setActiveWs] = useState(MOCK_WORKSPACES[0].id);
   const ws = MOCK_WORKSPACES.find((w) => w.id === activeWs)!;
 
@@ -28,8 +31,16 @@ export function Home() {
     const code = typeof codeOrEvent === 'string' ? codeOrEvent : '';
     navigate(code ? `/join/${code}` : '/join');
   };
-  const onCreate = (_wsId: string, formatId: FormatId = 'classic') => {
+  const onCreate = async (_wsId: string, formatId: FormatId = 'classic') => {
     const code = makeCode();
+    if (user) {
+      await createBoard({
+        code,
+        title: `Retro ${code}`,
+        format: formatId,
+        ownerId: user.id,
+      });
+    }
     if (!profile?.name) {
       navigate(`/join/${code}?format=${formatId}`);
     } else {
@@ -56,6 +67,14 @@ export function Home() {
     const newCode = makeCode();
     const cards = stripAuthorsAndVotes(result.data.cards);
     const navState = { importedTitle: result.data.title, importedCards: cards };
+    if (user) {
+      await createBoard({
+        code: newCode,
+        title: result.data.title,
+        format: result.data.format,
+        ownerId: user.id,
+      });
+    }
     if (!profile?.name) {
       navigate(`/join/${newCode}?format=${result.data.format}`, { state: navState });
     } else {

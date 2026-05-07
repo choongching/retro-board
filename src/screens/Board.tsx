@@ -5,6 +5,8 @@ import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
 import { useRetroChannel } from '../lib/useRetroChannel';
 import { buildExport, downloadJson } from '../lib/retroExport';
+import { getBoardByCode, updateBoardLastActive } from '../lib/boardsApi';
+import type { Board as DbBoard } from '../lib/boardsApi';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
@@ -21,31 +23,62 @@ export function Board() {
   const location = useLocation();
   const navigate = useNavigate();
   const profile = loadProfile();
+  const [lookup, setLookup] = useState<{ status: 'loading' } | { status: 'resolved'; board: DbBoard | null }>(
+    { status: 'loading' },
+  );
+
+  useEffect(() => {
+    if (!code) return;
+    let cancelled = false;
+    getBoardByCode(code).then((board) => {
+      if (!cancelled) setLookup({ status: 'resolved', board });
+    });
+    return () => { cancelled = true; };
+  }, [code]);
 
   if (!code) return <Navigate to="/" replace />;
   if (!profile) return <Navigate to={`/join/${code}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} replace />;
+  if (lookup.status === 'loading') return null;
 
   const imported = (location.state as ImportedNavState | null) ?? undefined;
 
-  return <BoardInner code={code} profile={profile} formatParam={searchParams.get('format')} imported={imported} onLeave={() => navigate('/')} onChangeProfile={() => navigate(`/join/${code}`)} />;
+  return (
+    <BoardInner
+      code={code}
+      profile={profile}
+      formatParam={searchParams.get('format')}
+      imported={imported}
+      dbBoard={lookup.board}
+      onLeave={() => navigate('/')}
+      onChangeProfile={() => navigate(`/join/${code}`)}
+    />
+  );
 }
 
 function BoardInner({
-  code, profile, formatParam, imported, onLeave, onChangeProfile,
+  code, profile, formatParam, imported, dbBoard, onLeave, onChangeProfile,
 }: {
   code: string;
   profile: NonNullable<ReturnType<typeof loadProfile>>;
   formatParam: string | null;
   imported?: ImportedNavState;
+  dbBoard: DbBoard | null;
   onLeave: () => void;
   onChangeProfile: () => void;
 }) {
-  const initialFormat: FormatId = isFormatId(formatParam) ? formatParam : 'classic';
+  const initialFormat: FormatId = dbBoard?.format ?? (isFormatId(formatParam) ? formatParam : 'classic');
   const initialState = useMemo(() => ({
     format: initialFormat,
-    title: imported?.importedTitle ?? `Retro ${code}`,
+    title: dbBoard?.title ?? imported?.importedTitle ?? `Retro ${code}`,
     cards: imported?.importedCards ?? [],
-  }), [initialFormat, code, imported]);
+  }), [initialFormat, code, imported, dbBoard]);
+
+  useEffect(() => {
+    if (!dbBoard) return;
+    updateBoardLastActive(dbBoard.id);
+    const id = window.setInterval(() => updateBoardLastActive(dbBoard.id), 60_000);
+    return () => window.clearInterval(id);
+  }, [dbBoard]);
 
   const {
     state, users, cursors,
