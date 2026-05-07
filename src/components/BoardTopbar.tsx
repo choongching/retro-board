@@ -1,15 +1,12 @@
 import { Icon } from '../icons';
-import { Timer } from './Timer';
 import { PresenceStack } from './PresenceStack';
 import { ProfilePill } from './ProfilePill';
 import type { Participant } from './StickyCard';
 import type { Format } from '../data';
 import type { Profile } from '../lib/profile';
-import type { Timer as TimerState } from '../lib/useRetroChannel';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
-  timer, onChangeTimer, isHost,
   onToggleAnon, onReveal, onExport, onLeave, onCopyCode, onChangeProfile,
 }: {
   code: string;
@@ -19,9 +16,6 @@ export function BoardTopbar({
   participants: Participant[];
   anonMode: boolean;
   revealed: boolean;
-  timer: TimerState;
-  onChangeTimer: (t: TimerState) => void;
-  isHost: boolean;
   onToggleAnon: () => void;
   onReveal: () => void;
   onExport: () => void;
@@ -51,8 +45,6 @@ export function BoardTopbar({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Timer timer={timer} onChange={onChangeTimer} isHost={isHost} />
-
         {anonMode && !revealed && (
           <button className="btn sm accent" onClick={onReveal}>
             <Icon name="eye" size={12} /> Reveal

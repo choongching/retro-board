@@ -42,7 +42,7 @@ function BoardInner({
   const {
     state, users, cursors,
     addCard, editCard, deleteCard, voteCard, moveCard,
-    updateSettings, setTimer, sendCursor,
+    updateSettings, sendCursor,
   } = useRetroChannel(code, profile, initialState);
 
   const fmt = FORMATS[state.format];
@@ -53,7 +53,6 @@ function BoardInner({
     }
     return [...seen.values()];
   }, [users]);
-  const isHost = participants[0]?.id === profile.id;
 
   const [toast, setToast] = useState<string | null>(null);
   const toastTimerRef = useRef<number | null>(null);
@@ -112,7 +111,7 @@ function BoardInner({
     showToast('Exported as Markdown');
   }, [state.title, state.cards, code, fmt, participants, showToast]);
 
-  // Cursor publishing — throttled to ~30 Hz; suppressed while typing in a textarea
+  // Cursor publishing — throttled to ~10 Hz; suppressed while typing in a textarea
   const surfaceRef = useRef<HTMLElement | null>(null);
   const lastSentRef = useRef(0);
   const pendingRef = useRef<{ x: number; y: number } | null>(null);
@@ -128,7 +127,7 @@ function BoardInner({
       const p = pendingRef.current;
       if (!p) return;
       const now = Date.now();
-      if (now - lastSentRef.current < 50) {
+      if (now - lastSentRef.current < 100) {
         rafRef.current = requestAnimationFrame(flush);
         return;
       }
@@ -161,9 +160,6 @@ function BoardInner({
         participants={participants}
         anonMode={state.anonMode}
         revealed={state.revealed}
-        timer={state.timer}
-        onChangeTimer={setTimer}
-        isHost={isHost}
         onToggleAnon={handleToggleAnon}
         onReveal={handleReveal}
         onExport={exportRetro}

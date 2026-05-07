@@ -4,15 +4,12 @@ import { supabase } from './supabase';
 import type { Card, ColumnId, FormatId } from '../data';
 import type { Profile } from './profile';
 
-export type Timer = { running: boolean; endsAt: number | null };
-
 export type RoomState = {
   format: FormatId;
   title: string;
   cards: Card[];
   anonMode: boolean;
   revealed: boolean;
-  timer: Timer;
 };
 
 export type User = {
@@ -30,8 +27,7 @@ type Patch =
   | { kind: 'card:delete'; id: string }
   | { kind: 'card:vote'; id: string; userId: string }
   | CardMovePatch
-  | { kind: 'settings'; patch: Partial<RoomState> }
-  | { kind: 'timer'; timer: Timer };
+  | { kind: 'settings'; patch: Partial<RoomState> };
 
 const EMPTY: RoomState = {
   format: 'classic',
@@ -39,7 +35,6 @@ const EMPTY: RoomState = {
   cards: [],
   anonMode: false,
   revealed: true,
-  timer: { running: false, endsAt: null },
 };
 
 export function useRetroChannel(
@@ -164,10 +159,6 @@ export function useRetroChannel(
     (patch: Partial<RoomState>) => sendPatch({ kind: 'settings', patch }),
     [sendPatch],
   );
-  const setTimer = useCallback(
-    (timer: Timer) => sendPatch({ kind: 'timer', timer }),
-    [sendPatch],
-  );
 
   // Cursor broadcast — ephemeral; never re-track() (which accumulates presence entries).
   const sendCursor = useCallback(
@@ -191,7 +182,6 @@ export function useRetroChannel(
     voteCard,
     moveCard,
     updateSettings,
-    setTimer,
     sendCursor,
   };
 }
@@ -225,8 +215,6 @@ function applyPatch(s: RoomState, p: Patch): RoomState {
     }
     case 'settings':
       return { ...s, ...p.patch };
-    case 'timer':
-      return { ...s, timer: p.timer };
     default:
       return s;
   }
