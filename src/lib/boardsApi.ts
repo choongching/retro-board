@@ -47,6 +47,24 @@ export async function getBoardByCode(code: string): Promise<Board | null> {
   return (data as Board | null) ?? null;
 }
 
+export async function getMyBoards(ownerId: string): Promise<Board[]> {
+  const { data, error } = await supabase
+    .from('boards')
+    .select('*')
+    .eq('owner_id', ownerId)
+    .order('last_active_at', { ascending: false });
+  if (error) {
+    console.error('getMyBoards failed', error);
+    return [];
+  }
+  return (data as Board[]) ?? [];
+}
+
+export async function deleteBoard(boardId: string): Promise<void> {
+  const { error } = await supabase.from('boards').delete().eq('id', boardId);
+  if (error) console.error('deleteBoard failed', error);
+}
+
 export async function updateBoardLastActive(boardId: string): Promise<void> {
   const { error } = await supabase
     .from('boards')
