@@ -35,7 +35,7 @@ function makeCode() {
 export function Home() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile());
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
 
   const onJoin = (codeOrEvent?: string | unknown) => {
     const code = typeof codeOrEvent === 'string' ? codeOrEvent : '';
@@ -63,6 +63,22 @@ export function Home() {
   const [joinCode, setJoinCode] = useState('');
   const [joinName, setJoinName] = useState(profile?.name ?? '');
   const [landingMode, setLandingMode] = useState<'join' | 'host'>('join');
+  const [hostEmail, setHostEmail] = useState('');
+  const [hostSubmitting, setHostSubmitting] = useState(false);
+  const [hostSentTo, setHostSentTo] = useState<string | null>(null);
+  const [hostError, setHostError] = useState<string | null>(null);
+
+  const onHostSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = hostEmail.trim();
+    if (!trimmed) return;
+    setHostSubmitting(true);
+    setHostError(null);
+    const { error } = await signIn(trimmed);
+    setHostSubmitting(false);
+    if (error) setHostError(error.message);
+    else setHostSentTo(trimmed);
+  };
 
   useEffect(() => {
     if (!user) { setMyBoards(null); return; }
@@ -311,13 +327,58 @@ export function Home() {
                         Spin up boards, keep them around, come back whenever.
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      className="btn accent lg"
-                      onClick={() => navigate('/signin')}
-                      style={{ justifyContent: 'center' }}>
-                      Sign in with email
-                    </button>
+
+                    {hostSentTo ? (
+                      <div style={{ textAlign: 'center', padding: '4px 0' }}>
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 'var(--radius-pill)', margin: '0 auto 12px',
+                          background: 'var(--color-brand-subtle)', color: 'var(--color-brand)',
+                          display: 'grid', placeItems: 'center',
+                        }}>
+                          <Icon name="check" size={20} />
+                        </div>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Check your email</div>
+                        <div className="muted" style={{ fontSize: 13.5 }}>
+                          Magic link sent to <span className="mono">{hostSentTo}</span>.
+                        </div>
+                        <button
+                          type="button"
+                          className="quiet-link"
+                          style={{ marginTop: 10, fontSize: 12.5 }}
+                          onClick={() => { setHostSentTo(null); setHostEmail(''); }}>
+                          Use a different email
+                        </button>
+                      </div>
+                    ) : (
+                      <form onSubmit={onHostSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        <div className="field-group">
+                          <label className="field-label" htmlFor="host-email">Email</label>
+                          <div className="field-frame">
+                            <input
+                              id="host-email"
+                              type="email"
+                              className="field-input"
+                              placeholder="you@company.com"
+                              value={hostEmail}
+                              onChange={(e) => setHostEmail(e.target.value)}
+                              autoComplete="email"
+                              required
+                            />
+                          </div>
+                        </div>
+                        {hostError && (
+                          <div className="tiny" style={{ color: '#9c4326' }}>{hostError}</div>
+                        )}
+                        <button
+                          type="submit"
+                          className="btn accent lg"
+                          style={{ justifyContent: 'center' }}
+                          disabled={hostSubmitting || !hostEmail.trim()}>
+                          {hostSubmitting ? 'Sending…' : 'Send magic link'}
+                        </button>
+                      </form>
+                    )}
+
                     <div className="tiny muted" style={{ textAlign: 'center' }}>
                       Free. We email you a link — no passwords.
                     </div>
