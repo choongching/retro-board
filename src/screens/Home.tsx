@@ -5,6 +5,7 @@ import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { ProfilePill } from '../components/ProfilePill';
+import { AuthPill } from '../components/AuthPill';
 import { FormatGlyph } from '../components/FormatGlyph';
 import { RetroRow } from '../components/RetroRow';
 import { loadProfile } from '../lib/profile';
@@ -80,7 +81,10 @@ export function Home() {
             ))}
           </select>
         </div>
-        <ProfilePill profile={profile} onClick={onSetProfile} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AuthPill />
+          <ProfilePill profile={profile} onClick={onSetProfile} />
+        </div>
       </header>
 
       <main style={{ flex: 1, overflow: 'auto', padding: '36px 0 60px' }}>
