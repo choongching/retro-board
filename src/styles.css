@@ -329,6 +329,13 @@ input, textarea { font: inherit; color: inherit; }
   background: var(--color-brand); align-self: flex-end;
   margin-bottom: 3px;
 }
+.retro-wordmark--lg {
+  font-size: 26px; letter-spacing: -0.03em;
+}
+.retro-wordmark--lg .retro-dot {
+  width: 9px; height: 9px;
+  margin-bottom: 5px;
+}
 
 /* Card */
 .join-screen .join-card {

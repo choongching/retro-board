@@ -151,7 +151,10 @@ export function Home() {
     <div className="app-shell">
       <header className="topbar" style={!user ? { justifyContent: 'center' } : undefined}>
         <div className="brand">
-          <RetroWordmark />
+          <RetroWordmark
+            size={user ? 'sm' : 'lg'}
+            tooltip={user ? undefined : 'Designed and created by CC, Teo'}
+          />
         </div>
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
