@@ -8,6 +8,7 @@ import type { Profile } from '../lib/profile';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
+  canEditTitle, onTitleChange,
   onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onChangeProfile,
 }: {
   code: string;
@@ -17,6 +18,8 @@ export function BoardTopbar({
   participants: Participant[];
   anonMode: boolean;
   revealed: boolean;
+  canEditTitle: boolean;
+  onTitleChange: (next: string) => void;
   onToggleAnon: () => void;
   onReveal: () => void;
   onExportMarkdown: () => void;
@@ -28,6 +31,27 @@ export function BoardTopbar({
   void fmt;
   const [exportOpen, setExportOpen] = useState(false);
   const exportRef = useRef<HTMLDivElement | null>(null);
+  const [titleEditing, setTitleEditing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(title);
+  const [titleHover, setTitleHover] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!titleEditing) setTitleDraft(title);
+  }, [title, titleEditing]);
+
+  useEffect(() => {
+    if (titleEditing) titleInputRef.current?.select();
+  }, [titleEditing]);
+
+  const commitTitle = () => {
+    setTitleEditing(false);
+    onTitleChange(titleDraft);
+  };
+  const cancelTitle = () => {
+    setTitleDraft(title);
+    setTitleEditing(false);
+  };
 
   useEffect(() => {
     if (!exportOpen) return;
@@ -53,13 +77,48 @@ export function BoardTopbar({
         <button className="btn ghost icon" onClick={onLeave} title="Leave">
           <Icon name="arrow-left" />
         </button>
-        <div className="here" style={{
-          fontWeight: 600, fontSize: 14,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          letterSpacing: '-0.01em',
-        }}>
-          {title}
-        </div>
+        {titleEditing ? (
+          <input
+            ref={titleInputRef}
+            value={titleDraft}
+            onChange={(e) => setTitleDraft(e.target.value)}
+            onBlur={commitTitle}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { e.preventDefault(); commitTitle(); }
+              else if (e.key === 'Escape') { e.preventDefault(); cancelTitle(); }
+            }}
+            style={{
+              fontWeight: 600, fontSize: 14, letterSpacing: '-0.01em',
+              padding: '4px 8px', minWidth: 200, maxWidth: 420,
+              border: '1px solid var(--color-brand-line)',
+              borderRadius: 6,
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              outline: 'none',
+            }}
+          />
+        ) : (
+          <div
+            className="here"
+            onMouseEnter={() => setTitleHover(true)}
+            onMouseLeave={() => setTitleHover(false)}
+            onClick={() => { if (canEditTitle) setTitleEditing(true); }}
+            title={canEditTitle ? 'Click to rename' : undefined}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontWeight: 600, fontSize: 14,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              letterSpacing: '-0.01em',
+              padding: '4px 8px', borderRadius: 6,
+              cursor: canEditTitle ? 'text' : 'default',
+              background: canEditTitle && titleHover ? 'var(--color-surface-2)' : 'transparent',
+            }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
+            {canEditTitle && titleHover && (
+              <Icon name="edit" size={11} color="var(--color-text-muted)" />
+            )}
+          </div>
+        )}
         <button className="btn sm" onClick={onCopyCode} title="Copy room code"
           style={{ marginLeft: 4, background: 'var(--color-surface-2)', borderColor: 'transparent' }}>
           <span className="mono" style={{ letterSpacing: '0.06em', color: 'var(--color-text-2)' }}>{code}</span>

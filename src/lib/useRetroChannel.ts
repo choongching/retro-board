@@ -7,6 +7,7 @@ import {
   deleteCardById,
   insertCard,
   setCardVotes,
+  updateBoardTitle,
   updateCardCol,
   updateCardText,
 } from './boardsApi';
@@ -227,7 +228,10 @@ function writePatchThrough(
       void updateCardCol(patch.id, patch.col);
       break;
     case 'settings':
-      // Title/anonMode/revealed are not persisted in this phase.
+      // Only the title is persisted to `boards`; anonMode/revealed stay in-memory.
+      if (typeof patch.patch.title === 'string') {
+        void updateBoardTitle(boardId, patch.patch.title);
+      }
       break;
   }
 }

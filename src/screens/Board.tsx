@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from '
 import { FORMATS } from '../data';
 import type { Card, ColumnId, FormatId } from '../data';
 import { loadProfile } from '../lib/profile';
+import { useAuth } from '../lib/auth';
 import { useRetroChannel } from '../lib/useRetroChannel';
 import { buildExport, downloadJson } from '../lib/retroExport';
 import { getBoardByCode, getCardsForBoard, updateBoardLastActive } from '../lib/boardsApi';
@@ -85,6 +86,9 @@ function BoardInner({
     return () => window.clearInterval(id);
   }, [dbBoard]);
 
+  const { user } = useAuth();
+  const canEditTitle = !dbBoard || dbBoard.owner_id === user?.id;
+
   const {
     state, users, cursors,
     addCard, editCard, deleteCard, voteCard, moveCard,
@@ -124,6 +128,12 @@ function BoardInner({
     updateSettings({ revealed: true });
     showToast('Cards revealed');
   }, [updateSettings, showToast]);
+
+  const handleTitleChange = useCallback((next: string) => {
+    const trimmed = next.trim();
+    if (!trimmed || trimmed === state.title) return;
+    updateSettings({ title: trimmed });
+  }, [updateSettings, state.title]);
 
   const handleCopyCode = useCallback(() => {
     navigator.clipboard?.writeText(code).catch(() => {});
@@ -218,6 +228,8 @@ function BoardInner({
         participants={participants}
         anonMode={state.anonMode}
         revealed={state.revealed}
+        canEditTitle={canEditTitle}
+        onTitleChange={handleTitleChange}
         onToggleAnon={handleToggleAnon}
         onReveal={handleReveal}
         onExportMarkdown={exportMarkdown}

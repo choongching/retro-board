@@ -65,6 +65,11 @@ export async function deleteBoard(boardId: string): Promise<void> {
   if (error) console.error('deleteBoard failed', error);
 }
 
+export async function updateBoardTitle(boardId: string, title: string): Promise<void> {
+  const { error } = await supabase.from('boards').update({ title }).eq('id', boardId);
+  if (error) console.error('updateBoardTitle failed', error);
+}
+
 export async function updateBoardLastActive(boardId: string): Promise<void> {
   const { error } = await supabase
     .from('boards')
