@@ -6,6 +6,7 @@ import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { ProfilePill } from '../components/ProfilePill';
 import { AuthPill } from '../components/AuthPill';
+import { UserMenu } from '../components/UserMenu';
 import { FormatGlyph } from '../components/FormatGlyph';
 import { loadProfile } from '../lib/profile';
 import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
@@ -116,8 +117,14 @@ export function Home() {
           <RetroWordmark />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <AuthPill />
-          <ProfilePill profile={profile} onClick={onSetProfile} />
+          {user ? (
+            <UserMenu profile={profile} onChangeProfile={onSetProfile} />
+          ) : (
+            <>
+              <AuthPill />
+              <ProfilePill profile={profile} onClick={onSetProfile} />
+            </>
+          )}
         </div>
       </header>
 
