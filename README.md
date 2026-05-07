@@ -12,7 +12,7 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 
 ### As a participant (no account)
 - Open a teammate's invite link
-- Type your name → you're in
+- Type your name → you're in (the code is checked against the database first; bogus codes get a friendly inline error instead of dropping you into an empty room)
 - Add cards, vote on cards, drag them between columns
 - See teammates' cursors and avatars in real time
 - Export the retro as Markdown or JSON
@@ -56,6 +56,12 @@ Your board is saved to the database the moment you create it. Close the tab, com
 ### Sharing
 Inside the board, click the share icon next to the room code. That copies an invite link (`/join/<code>`) — recipients always see the name prompt before the board, even if they've used JomRetro before.
 
+### When something goes wrong
+- **Wrong / typo'd room code on submit** → inline error below the field: _"We couldn't find a retro with that code. Double-check it with your teammate."_ The page doesn't navigate, your name input stays put.
+- **Invalid email in the host card** → inline error before any magic link gets sent.
+- **Visiting `/r/<bogus-code>` directly** (bookmark from a deleted retro, broken link) → friendly _"We couldn't find that retro"_ page with the offending code and a "Back home" button. No silent drop into an empty room.
+- **Successful actions** (copy invite link, copy code, reveal cards, export) → toast notification at the bottom of the screen.
+
 ---
 
 ## Tech stack
@@ -68,6 +74,7 @@ Inside the board, click the share icon next to the room code. That copies an inv
 | Persistence | Supabase Postgres + Row-Level Security |
 | Auth | Supabase Auth (email magic link) |
 | Email delivery | Resend (custom SMTP) |
+| Toast notifications | [sonner](https://sonner.emilkowal.ski/) |
 | Hosting | Vercel |
 | Type/build | TypeScript strict + `tsc -b && vite build` |
 
@@ -93,7 +100,10 @@ Boards are share-link-trusted: anyone with the code can read, post, vote, edit t
 - ✓ Persistent boards for signed-in creators
 - ✓ "My boards" history with delete
 - ✓ Copy-invite-link with name-collection guarantee
-- ✓ Inline form validation everywhere
+- ✓ Inline form validation everywhere (empty fields, bad email format, ABC-1234 code shape)
+- ✓ DB-backed code lookup before joining — no more landing in phantom rooms
+- ✓ Friendly "Board not found" page for stale links
+- ✓ Toast notifications via sonner for every confirmation action
 - ✓ Light, design-tokenised UI consistent across signed-in and anonymous flows
 
 ### Known limitations
@@ -164,6 +174,25 @@ src/
     AuthPill, RetroWordmark, FormatGlyph
 supabase/
   migrations/            # init schema, RLS, RPC revokes, RLS relax
+public/
+  favicon.svg            # branded blue circle (matches the wordmark dot)
+```
+
+## Toast notifications
+
+Notifications use [sonner](https://sonner.emilkowal.ski/) — small, themeable, no per-screen state plumbing. The single `<Toaster />` mount in `App.tsx` is themed via inline `toastOptions.style` mapped to our existing tokens (`--color-text` background, `--color-bg` text, `--shadow-lg`).
+
+```ts
+import { toast } from 'sonner';
+
+toast('Copied room code');                  // neutral pill (default style)
+toast.success('Invite link copied');        // success variant
+toast.error("That didn't work");            // error variant
+toast.promise(saveBoard(), {                // async with all three states
+  loading: 'Saving…',
+  success: 'Saved',
+  error: 'Save failed',
+});
 ```
 
 ## Operating notes
