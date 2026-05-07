@@ -4,7 +4,6 @@ import { FORMATS, colorForName } from '../data';
 import type { FormatId } from '../data';
 import { Icon } from '../icons';
 import { RetroWordmark } from '../components/RetroWordmark';
-import { AuthPill } from '../components/AuthPill';
 import { UserMenu } from '../components/UserMenu';
 import { FormatGlyph } from '../components/FormatGlyph';
 import { loadProfile, saveProfile } from '../lib/profile';
@@ -114,17 +113,15 @@ export function Home() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
+      <header className="topbar" style={!user ? { justifyContent: 'center' } : undefined}>
         <div className="brand">
           <RetroWordmark />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {user ? (
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <UserMenu profile={profile} onProfileChange={setProfile} />
-          ) : (
-            <AuthPill />
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
       <main style={{ flex: 1, overflow: 'auto', padding: '36px 0 60px' }}>
