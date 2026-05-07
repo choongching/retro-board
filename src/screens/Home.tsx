@@ -63,6 +63,7 @@ export function Home() {
   const [myBoards, setMyBoards] = useState<Board[] | null>(null);
   const [joinCode, setJoinCode] = useState('');
   const [joinName, setJoinName] = useState(profile?.name ?? '');
+  const [landingMode, setLandingMode] = useState<'join' | 'host'>('join');
 
   useEffect(() => {
     if (!user) { setMyBoards(null); return; }
@@ -232,87 +233,101 @@ export function Home() {
                 </div>
               </div>
 
+              {/* Mode toggle (Join / Host) */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                <div role="tablist" aria-label="Landing mode" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: 4, borderRadius: 999,
+                  background: 'var(--color-surface-2)',
+                  border: '1px solid var(--color-divider)',
+                }}>
+                  <ModeTab active={landingMode === 'join'} onClick={() => setLandingMode('join')}>Join a retro</ModeTab>
+                  <ModeTab active={landingMode === 'host'} onClick={() => setLandingMode('host')}>Host your own</ModeTab>
+                </div>
+              </div>
+
               {importError && <ImportErrorCard message={importError} />}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <form
-                  className="surface"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const trimmedName = joinName.trim();
-                    const code = joinCode.trim().toUpperCase();
-                    if (!trimmedName || !code) return;
-                    saveProfile({
-                      name: trimmedName,
-                      color: profile?.color ?? colorForName(trimmedName),
-                    });
-                    navigate(`/r/${code}`);
-                  }}
-                  style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Join a retro</h2>
-                    <div className="muted tiny" style={{ marginTop: 4 }}>
-                      Have a code from a teammate? Hop right in.
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                {landingMode === 'join' ? (
+                  <form
+                    className="surface"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const trimmedName = joinName.trim();
+                      const code = joinCode.trim().toUpperCase();
+                      if (!trimmedName || !code) return;
+                      saveProfile({
+                        name: trimmedName,
+                        color: profile?.color ?? colorForName(trimmedName),
+                      });
+                      navigate(`/r/${code}`);
+                    }}
+                    style={{ width: 440, maxWidth: '100%', padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Join a retro</h2>
+                      <div className="muted tiny" style={{ marginTop: 4 }}>
+                        Have a code from a teammate? Hop right in.
+                      </div>
+                    </div>
+                    <div className="field-group">
+                      <label className="field-label" htmlFor="home-join-name">Your name</label>
+                      <div className="field-frame">
+                        <input
+                          id="home-join-name"
+                          className="field-input"
+                          placeholder="Casey Lin"
+                          value={joinName}
+                          onChange={(e) => setJoinName(e.target.value)}
+                          autoComplete="off"
+                        />
+                      </div>
+                    </div>
+                    <div className="field-group">
+                      <label className="field-label" htmlFor="home-join-code">Room code</label>
+                      <div className="field-frame">
+                        <input
+                          id="home-join-code"
+                          className="field-input mono code-input"
+                          placeholder="ABC-1234"
+                          value={joinCode}
+                          onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                          autoComplete="off"
+                          spellCheck="false"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="btn accent lg"
+                      style={{ justifyContent: 'center' }}
+                      disabled={!joinName.trim() || !joinCode.trim()}>
+                      Join
+                    </button>
+                    <div className="tiny muted" style={{ textAlign: 'center' }}>
+                      No account needed.
+                    </div>
+                  </form>
+                ) : (
+                  <div className="surface" style={{ width: 440, maxWidth: '100%', padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Host your own</h2>
+                      <div className="muted tiny" style={{ marginTop: 4 }}>
+                        Create boards, save them, revisit anytime.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn accent lg"
+                      onClick={() => navigate('/signin')}
+                      style={{ justifyContent: 'center' }}>
+                      Sign in with email
+                    </button>
+                    <div className="tiny muted" style={{ textAlign: 'center' }}>
+                      Free. Magic-link, no passwords.
                     </div>
                   </div>
-                  <div className="field-group">
-                    <label className="field-label" htmlFor="home-join-name">Your name</label>
-                    <div className="field-frame">
-                      <input
-                        id="home-join-name"
-                        className="field-input"
-                        placeholder="Casey Lin"
-                        value={joinName}
-                        onChange={(e) => setJoinName(e.target.value)}
-                        autoComplete="off"
-                      />
-                    </div>
-                  </div>
-                  <div className="field-group">
-                    <label className="field-label" htmlFor="home-join-code">Room code</label>
-                    <div className="field-frame">
-                      <input
-                        id="home-join-code"
-                        className="field-input mono code-input"
-                        placeholder="ABC-1234"
-                        value={joinCode}
-                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                        autoComplete="off"
-                        spellCheck="false"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn lg"
-                    style={{ justifyContent: 'center' }}
-                    disabled={!joinName.trim() || !joinCode.trim()}>
-                    Join
-                  </button>
-                  <div className="tiny muted" style={{ textAlign: 'center' }}>
-                    No account needed.
-                  </div>
-                </form>
-
-                <div className="surface" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 600 }}>Host your own</h2>
-                    <div className="muted tiny" style={{ marginTop: 4 }}>
-                      Create boards, save them, revisit anytime.
-                    </div>
-                  </div>
-                  <div style={{ flex: 1 }} />
-                  <button
-                    type="button"
-                    className="btn accent lg"
-                    onClick={() => navigate('/signin')}
-                    style={{ justifyContent: 'center' }}>
-                    Sign in with email
-                  </button>
-                  <div className="tiny muted" style={{ textAlign: 'center' }}>
-                    Free. Magic-link, no passwords.
-                  </div>
-                </div>
+                )}
               </div>
 
               <div style={{ textAlign: 'center', marginTop: 22 }}>
@@ -325,6 +340,31 @@ export function Home() {
         </div>
       </main>
     </div>
+  );
+}
+
+function ModeTab({ active, onClick, children }: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      style={{
+        height: 30, padding: '0 14px',
+        borderRadius: 999, border: 0, cursor: 'pointer',
+        fontSize: 13, fontWeight: 500,
+        background: active ? 'var(--color-surface)' : 'transparent',
+        color: active ? 'var(--color-text)' : 'var(--color-text-muted)',
+        boxShadow: active ? 'var(--shadow-sm)' : 'none',
+        transition: 'background .15s, color .15s, box-shadow .15s',
+      }}>
+      {children}
+    </button>
   );
 }
 
