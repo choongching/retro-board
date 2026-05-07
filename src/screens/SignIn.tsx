@@ -34,9 +34,9 @@ export function SignIn() {
   };
 
   return (
-    <div className="app-shell" style={{ background: 'var(--color-bg)' }}>
-      <header className="topbar" style={{ borderBottomColor: 'transparent', background: 'transparent' }}>
-        <RetroWordmark />
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand"><RetroWordmark /></div>
         <button className="btn ghost" onClick={() => navigate('/')}>
           <Icon name="arrow-left" /> Back
         </button>
@@ -50,10 +50,10 @@ export function SignIn() {
       }}>
         <div style={{ width: 420, maxWidth: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15 }}>
+            <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
               Sign in
             </h1>
-            <div className="muted" style={{ marginTop: 8, fontSize: 14 }}>
+            <div className="muted" style={{ marginTop: 6 }}>
               We'll email you a magic link. No passwords.
             </div>
           </div>

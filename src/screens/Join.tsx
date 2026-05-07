@@ -38,9 +38,9 @@ export function Join() {
   const onBack = existing?.name ? () => navigate('/') : null;
 
   return (
-    <div className="app-shell join-screen" style={{ background: 'var(--color-bg)' }}>
-      <header className="topbar" style={{ borderBottomColor: 'transparent', background: 'transparent' }}>
-        <RetroWordmark />
+    <div className="app-shell join-screen">
+      <header className="topbar">
+        <div className="brand"><RetroWordmark /></div>
         {onBack && (
           <button className="btn ghost" onClick={onBack}>
             <Icon name="arrow-left" /> Back
@@ -56,10 +56,10 @@ export function Join() {
       }}>
         <div style={{ width: 420, maxWidth: '100%' }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15 }}>
+            <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
               Join a retro
             </h1>
-            <div className="muted" style={{ marginTop: 8, fontSize: 14 }}>
+            <div className="muted" style={{ marginTop: 6 }}>
               Just your name and the room code.
             </div>
           </div>

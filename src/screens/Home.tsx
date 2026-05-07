@@ -223,11 +223,11 @@ export function Home() {
           ) : (
             <>
               {/* Anonymous landing — split-action */}
-              <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 36 }}>
-                <h1 style={{ margin: 0, fontSize: 36, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.15 }}>
+              <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 28 }}>
+                <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
                   Quick team retrospectives.
                 </h1>
-                <div className="muted" style={{ marginTop: 10, fontSize: 15 }}>
+                <div className="muted" style={{ marginTop: 6 }}>
                   Drop in with a code, or sign in to host your own.
                 </div>
               </div>

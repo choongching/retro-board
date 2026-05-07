@@ -40,9 +40,9 @@ export function AuthCallback() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="app-shell" style={{ background: 'var(--color-bg)' }}>
-      <header className="topbar" style={{ borderBottomColor: 'transparent', background: 'transparent' }}>
-        <RetroWordmark />
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand"><RetroWordmark /></div>
       </header>
       <main style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 380 }}>
