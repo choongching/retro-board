@@ -16,15 +16,19 @@ import type { Board } from '../lib/boardsApi';
 
 const landingStagger = {
   hidden: { opacity: 1 },
-  show:   { opacity: 1, transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+  show:   { opacity: 1, transition: { staggerChildren: 0.14, delayChildren: 0.1 } },
 };
 const fadeUpVisible = {
-  hidden: { opacity: 0, y: 8 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  hidden: { opacity: 0, y: 18 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+};
+const wordmarkAppear = {
+  hidden: { opacity: 0, y: -10, scale: 0.9 },
+  show:   { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 const fadeUpStill = {
   hidden: { opacity: 0 },
-  show:   { opacity: 1, transition: { duration: 0.2 } },
+  show:   { opacity: 1, transition: { duration: 0.25 } },
 };
 
 function relativeTime(iso: string): string {
@@ -272,11 +276,15 @@ export function Home() {
             </>
           ) : (
             <motion.div initial="hidden" animate="show" variants={landingStagger}>
-              {/* Hero stack — wordmark + H1 + deck as one composition */}
+              {/* Wordmark — appears first, scales in */}
+              <motion.div
+                variants={reduceMotion ? fadeUpStill : wordmarkAppear}
+                style={{ display: 'flex', justifyContent: 'center', marginBottom: 22 }}>
+                <RetroWordmark size="lg" tooltip="Designed and created by CC, Teo" />
+              </motion.div>
+
+              {/* Headline + deck — second */}
               <motion.div variants={fadeVariant} style={{ textAlign: 'center', marginBottom: 36 }}>
-                <div style={{ display: 'inline-flex', marginBottom: 22 }}>
-                  <RetroWordmark size="lg" tooltip="Designed and created by CC, Teo" />
-                </div>
                 <h1 style={{
                   margin: 0,
                   fontSize: 36,
