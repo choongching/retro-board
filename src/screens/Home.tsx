@@ -397,22 +397,28 @@ export function Home() {
                     </div>
 
                     {hostSentTo ? (
-                      <div style={{ textAlign: 'center', padding: '4px 0' }}>
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '20px 16px',
+                        background: 'var(--color-surface-2)',
+                        borderRadius: 12,
+                      }}>
                         <div style={{
-                          width: 44, height: 44, borderRadius: 'var(--radius-pill)', margin: '0 auto 12px',
-                          background: 'var(--color-brand-subtle)', color: 'var(--color-brand)',
+                          width: 30, height: 30, borderRadius: 'var(--radius-pill)', margin: '0 auto 12px',
+                          background: 'color-mix(in oklch, #16a34a 14%, var(--color-bg))',
+                          color: '#15803d',
                           display: 'grid', placeItems: 'center',
                         }}>
-                          <Icon name="check" size={20} />
+                          <Icon name="check" size={14} />
                         </div>
-                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Check your email</div>
+                        <div style={{ fontWeight: 600, marginBottom: 6 }}>Link's in your inbox</div>
                         <div className="muted" style={{ fontSize: 13.5 }}>
-                          Magic link sent to <span className="mono">{hostSentTo}</span>.
+                          Click the link in <span className="mono">{hostSentTo}</span> to start your retro.
                         </div>
                         <button
                           type="button"
                           className="quiet-link"
-                          style={{ marginTop: 10, fontSize: 12.5 }}
+                          style={{ marginTop: 12, fontSize: 12.5 }}
                           onClick={() => { setHostSentTo(null); setHostEmail(''); }}>
                           Use a different email
                         </button>
