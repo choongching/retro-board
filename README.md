@@ -81,6 +81,15 @@ Inside the board, click the share icon next to the room code. That copies an inv
 ### How realtime works
 Every room is a Supabase Realtime channel keyed `retro:<code>`. Card actions broadcast as state patches; the longest-connected tab acts as the source of truth for late joiners. Cursors ride a separate, throttled broadcast. Card mutations also fire-and-forget into the `cards` table when the board has a DB row, so refreshing or closing all tabs doesn't lose anything.
 
+### Why magic links?
+JomRetro is an occasional-use tool — most hosts run a retro weekly or monthly at best. That's the worst cadence for password recall, so we skipped passwords entirely:
+
+- **No password tax on returning hosts** — no "forgot password?" flows, no password manager friction, no second-visit drop-off. No password storage also means no breach blast radius.
+- **No OAuth opinion** — Google / GitHub sign-in would have been faster, but locks users into having an account with one of those providers and tells the provider which apps people use. Too much surface area for what should be the smallest auth dependency we can get away with.
+- **Auth is opt-in, not required** — participants get a localStorage profile (name + UUID + auto-derived color) and never sign in. Magic-link auth is only for hosts who want boards to persist across sessions. The "go check your inbox" friction is fine for users who are explicitly opting into an account.
+
+**Tradeoffs we accepted:** slower than OAuth (context-switching to email), reliant on email deliverability (we route through Resend custom SMTP to dodge Supabase's 3–4 emails/hour built-in cap), and no social-graph features like Google avatars (we auto-derive avatar colors from display names instead).
+
 ### How auth works
 Sign-in is magic-link only — no passwords. Supabase issues a single-use code, the email link drops you on `/auth/callback`, the client exchanges it for a session, and a Postgres trigger auto-creates a `profiles` row keyed to the auth user. Anonymous participants get a `localStorage` profile with a UUID + display name + auto-derived color; they coexist with real auth identities without any link between them.
 
