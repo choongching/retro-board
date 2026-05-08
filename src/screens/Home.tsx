@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion } from 'motion/react';
 import { FORMATS, colorForName } from '../data';
 import type { FormatId } from '../data';
 import { Icon } from '../icons';
@@ -12,6 +13,19 @@ import { parseAndValidate, stripAuthorsAndVotes } from '../lib/retroExport';
 import { useAuth } from '../lib/auth';
 import { bulkInsertCards, createBoard, deleteBoard, getBoardByCode, getMyBoards } from '../lib/boardsApi';
 import type { Board } from '../lib/boardsApi';
+
+const landingStagger = {
+  hidden: { opacity: 1 },
+  show:   { opacity: 1, transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+const fadeUpVisible = {
+  hidden: { opacity: 0, y: 8 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+};
+const fadeUpStill = {
+  hidden: { opacity: 0 },
+  show:   { opacity: 1, transition: { duration: 0.2 } },
+};
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -36,6 +50,8 @@ export function Home() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile());
   const navigate = useNavigate();
   const { user, signIn } = useAuth();
+  const reduceMotion = useReducedMotion();
+  const fadeVariant = reduceMotion ? fadeUpStill : fadeUpVisible;
 
   const onJoin = (codeOrEvent?: string | unknown) => {
     const code = typeof codeOrEvent === 'string' ? codeOrEvent : '';
@@ -255,9 +271,9 @@ export function Home() {
               )}
             </>
           ) : (
-            <>
+            <motion.div initial="hidden" animate="show" variants={landingStagger}>
               {/* Hero stack — wordmark + H1 + deck as one composition */}
-              <div style={{ textAlign: 'center', marginBottom: 36 }}>
+              <motion.div variants={fadeVariant} style={{ textAlign: 'center', marginBottom: 36 }}>
                 <div style={{ display: 'inline-flex', marginBottom: 22 }}>
                   <RetroWordmark size="lg" tooltip="Designed and created by CC, Teo" />
                 </div>
@@ -278,10 +294,10 @@ export function Home() {
                 }}>
                   Spin up a board, share the link, get to the good stuff.
                 </div>
-              </div>
+              </motion.div>
 
               {/* Mode toggle (Join / Host) */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+              <motion.div variants={fadeVariant} style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
                 <div role="tablist" aria-label="Landing mode" style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   width: 440, maxWidth: '100%',
@@ -291,9 +307,9 @@ export function Home() {
                   <ModeTab active={landingMode === 'join'} onClick={() => setLandingMode('join')}>I'm joining</ModeTab>
                   <ModeTab active={landingMode === 'host'} onClick={() => setLandingMode('host')}>I'm hosting</ModeTab>
                 </div>
-              </div>
+              </motion.div>
 
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <motion.div variants={fadeVariant} style={{ display: 'flex', justifyContent: 'center' }}>
                 {landingMode === 'join' ? (
                   <form
                     className="surface"
@@ -438,8 +454,8 @@ export function Home() {
                     </div>
                   </div>
                 )}
-              </div>
-            </>
+              </motion.div>
+            </motion.div>
           )}
         </div>
       </main>
