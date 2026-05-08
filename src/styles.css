@@ -335,6 +335,15 @@ input, textarea { font: inherit; color: inherit; }
 .retro-wordmark--lg .retro-dot {
   width: 9px; height: 9px;
   margin-bottom: 5px;
+  transform-origin: center;
+  animation: retro-dot-bounce 1.6s ease-in-out infinite;
+}
+@keyframes retro-dot-bounce {
+  0%, 55%, 100% { transform: translateY(0) scale(1); }
+  25%          { transform: translateY(-5px) scale(1.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .retro-wordmark--lg .retro-dot { animation: none; }
 }
 
 /* Card */
