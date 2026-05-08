@@ -149,21 +149,18 @@ export function Home() {
 
   return (
     <div className="app-shell">
-      <header className="topbar" style={!user ? { justifyContent: 'center' } : undefined}>
-        <div className="brand">
-          <RetroWordmark
-            size={user ? 'sm' : 'lg'}
-            tooltip={user ? undefined : 'Designed and created by CC, Teo'}
-          />
-        </div>
-        {user && (
+      {user && (
+        <header className="topbar">
+          <div className="brand">
+            <RetroWordmark size="sm" />
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <UserMenu profile={profile} onProfileChange={setProfile} />
           </div>
-        )}
-      </header>
+        </header>
+      )}
 
-      <main style={{ flex: 1, overflow: 'auto', padding: '36px 0 60px' }}>
+      <main style={{ flex: 1, overflow: 'auto', padding: user ? '36px 0 60px' : '80px 0 64px' }}>
         <div style={{ maxWidth: 920, margin: '0 auto', padding: '0 32px' }}>
           <input
             ref={fileInputRef}
@@ -259,18 +256,32 @@ export function Home() {
             </>
           ) : (
             <>
-              {/* Anonymous landing — split-action */}
-              <div style={{ textAlign: 'center', marginTop: 56, marginBottom: 28 }}>
-                <h1 style={{ margin: 0, fontSize: 30, fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+              {/* Hero stack — wordmark + H1 + deck as one composition */}
+              <div style={{ textAlign: 'center', marginBottom: 36 }}>
+                <div style={{ display: 'inline-flex', marginBottom: 22 }}>
+                  <RetroWordmark size="lg" tooltip="Designed and created by CC, Teo" />
+                </div>
+                <h1 style={{
+                  margin: 0,
+                  fontSize: 36,
+                  fontWeight: 600,
+                  letterSpacing: '-0.03em',
+                  lineHeight: 1.08,
+                }}>
                   Retros that don't drag.
                 </h1>
-                <div className="muted" style={{ marginTop: 6 }}>
+                <div className="muted" style={{
+                  margin: '10px auto 0',
+                  fontSize: 16,
+                  lineHeight: 1.5,
+                  maxWidth: 440,
+                }}>
                   Spin up a board, share the link, get to the good stuff.
                 </div>
               </div>
 
               {/* Mode toggle (Join / Host) */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
                 <div role="tablist" aria-label="Landing mode" style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   width: 440, maxWidth: '100%',
