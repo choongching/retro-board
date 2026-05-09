@@ -12,6 +12,7 @@ export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
   isOwner, onTitleChange,
   onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onCopyInviteLink, onChangeProfile, onProfileChange,
+  onOpenRecap,
 }: {
   code: string;
   title: string;
@@ -31,6 +32,7 @@ export function BoardTopbar({
   onCopyInviteLink: () => void;
   onChangeProfile: () => void;
   onProfileChange: (next: Profile) => void;
+  onOpenRecap: () => void;
 }) {
   void fmt;
   const { user } = useAuth();
@@ -147,6 +149,13 @@ export function BoardTopbar({
             title={anonMode ? 'Anonymous mode is on' : 'Anonymous mode is off'}
             style={anonMode ? { background: 'var(--color-brand-subtle)', borderColor: 'var(--color-brand-line)', color: 'var(--color-brand)' } : undefined}>
             <Icon name={anonMode ? 'eye-off' : 'eye'} size={13} />
+          </button>
+        )}
+
+        {isOwner && (
+          <button className="btn icon" onClick={onOpenRecap}
+            title="Recap a previous session">
+            <Icon name="history" size={13} />
           </button>
         )}
 

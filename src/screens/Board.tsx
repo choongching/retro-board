@@ -13,6 +13,7 @@ import type { Board as DbBoard } from '../lib/boardsApi';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
+import { RecapModal } from '../components/RecapModal';
 import { RetroWordmark } from '../components/RetroWordmark';
 
 type ImportedNavState = { importedTitle?: string; importedCards?: Card[] };
@@ -96,6 +97,7 @@ function BoardInner({
 
   const { user } = useAuth();
   const isOwner = !dbBoard || dbBoard.owner_id === user?.id;
+  const [recapOpen, setRecapOpen] = useState(false);
 
   const {
     state, users, cursors,
@@ -247,6 +249,7 @@ function BoardInner({
         onCopyInviteLink={handleCopyInviteLink}
         onChangeProfile={onChangeProfile}
         onProfileChange={setProfile}
+        onOpenRecap={() => setRecapOpen(true)}
       />
 
       <BoardSurface
@@ -264,6 +267,15 @@ function BoardInner({
       />
 
       <PresenceCursors users={users} cursors={cursors} selfId={profile.id} />
+
+      {isOwner && user && (
+        <RecapModal
+          open={recapOpen}
+          onClose={() => setRecapOpen(false)}
+          ownerId={user.id}
+          currentBoardId={dbBoard?.id ?? null}
+        />
+      )}
     </div>
   );
 }
