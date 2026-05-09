@@ -93,7 +93,7 @@ export function BoardTopbar({
               else if (e.key === 'Escape') { e.preventDefault(); cancelTitle(); }
             }}
             style={{
-              fontWeight: 600, fontSize: 14, letterSpacing: '-0.01em',
+              fontWeight: 600, fontSize: 15, letterSpacing: '-0.01em',
               padding: '4px 8px', minWidth: 200, maxWidth: 420,
               border: '1px solid var(--color-brand-line)',
               borderRadius: 6,
@@ -111,7 +111,7 @@ export function BoardTopbar({
             title={canEditTitle ? 'Click to rename' : undefined}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              fontWeight: 600, fontSize: 14,
+              fontWeight: 600, fontSize: 15,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               letterSpacing: '-0.01em',
               padding: '4px 8px', borderRadius: 6,

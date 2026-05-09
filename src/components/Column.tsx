@@ -45,7 +45,7 @@ export function Column({
           width: 8, height: 8, borderRadius: '50%',
           background: col.accent, flexShrink: 0,
         }} />
-        <div style={{ fontWeight: 600, fontSize: 13.5 }}>{col.label}</div>
+        <div style={{ fontWeight: 600, fontSize: 15, letterSpacing: '-0.01em' }}>{col.label}</div>
         {cards.length === 0 && (
           <div className="tiny muted" style={{ marginLeft: 4 }}>{col.hint}</div>
         )}
