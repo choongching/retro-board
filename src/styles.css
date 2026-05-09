@@ -179,7 +179,7 @@ input, textarea { font: inherit; color: inherit; }
   padding: 10px 12px 8px;
   font-size: 15px;
   line-height: 1.45;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.02em;
   color: var(--color-text);
   cursor: grab;
   transition: border-color .14s, transform .14s;
