@@ -258,3 +258,27 @@ The template uses the same brand tokens as the app (`#2563eb` brand blue, `#f4f6
 
 ### Vercel build pinning
 `vercel.json` pins `installCommand: npm install` and `buildCommand: npm run build` so builds are deterministic against `package-lock.json`.
+
+---
+
+## Lessons learned
+
+The hardest part of building JomRetro wasn't anything you can point at on the screen. It was the **realtime multiplayer sync layer**: the invisible plumbing that makes everyone's screen show the same board at the same time.
+
+A useful metaphor: running a retro in a real conference room is easy because there's one wall and twelve pairs of eyes on it. JomRetro is the same retro, but with twelve teammates in twelve different cities, each looking at their own copy of the wall. Every sticky any of them moves has to instantly appear in the same place on the other eleven walls, and every action has to be filed in a permanent archive so you can pull it back up next year.
+
+What makes that hard isn't any one piece. It's that several fragile pieces have to thread together perfectly. If any one of them is slightly off, the bug it creates is brutal to track down: cards duplicating because two systems both try to save the same one, vote counts drifting because two people clicked at the same instant, a refresh wiping someone's work, a late joiner seeing a phantom version of the board that nobody else has.
+
+Three judgment calls that made it actually work:
+
+1. **The longest-connected tab is silently elected as the source of truth for late joiners.** If you join 10 minutes into a retro, you don't get an empty board. You get the current state from whoever has been there longest. The room itself doesn't have one canonical copy on a server. The longest-connected human is the canonical copy.
+
+2. **Card actions show up instantly and save in the background, separately.** When you click "add card," the card pops up on everyone's screen immediately, and a fire-and-forget write hits the database. The visible part never waits on the save, so the experience always feels instant even if the network is slow.
+
+3. **Cursors update 10 times a second, not 60.** Letting cursors run at full smoothness would burn through Supabase's free-tier message budget in about a week. The throttle is invisible to the eye but it's the difference between a free app and a paid one.
+
+The validation moment was a 12-person live retro with no visible issues. There is no test suite that can prove a multiplayer system is stable. You have to put humans in it and watch.
+
+For contrast, the other thing that was fiddly (different from hard) was the chain of small steps to ship the public domain: GoDaddy DNS records, Vercel domain verification, Supabase redirect URLs, OG image and meta tags, custom SMTP through Resend so magic-link emails actually deliver. None of those steps are difficult on their own, but each one has to be done in the right order with the right values, or some part of the app silently breaks for users you'll never hear from.
+
+The takeaway: things that look simple in a product (a sticky note appearing on someone else's screen) are often what took the longest to make reliable. Things that look impressive (the recap modal, the bouncing dot animation) are often the easy parts.
