@@ -1,0 +1,80 @@
+<!--
+  JomRetro magic-link email
+  -------------------------
+  Paste this into Supabase Dashboard → Authentication → Emails → Magic Link → Message.
+  Subject line (separate field above the body): Sign in to JomRetro
+  Variables used: {{ .ConfirmationURL }}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Sign in to JomRetro</title>
+</head>
+<body style="margin:0; padding:0; background:#f4f6fa; font-family:'Inter Tight','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; color:#0f1520; -webkit-font-smoothing:antialiased;">
+
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">
+    Tap the button to hop back into JomRetro. The link works once and expires in 1 hour.
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fa; padding:48px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="520" cellpadding="0" cellspacing="0" border="0" style="max-width:520px; width:100%;">
+
+          <tr>
+            <td style="background:#ffffff; padding:44px 40px; border-radius:14px;">
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 32px 0;">
+                <tr>
+                  <td style="font-size:22px; font-weight:600; letter-spacing:-0.025em; color:#0f1520; padding:0 6px 0 0; vertical-align:middle; line-height:1;">JomRetro</td>
+                  <td style="vertical-align:middle; padding-top:6px;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:#2563eb; line-height:8px; font-size:0;">&nbsp;</div>
+                  </td>
+                </tr>
+              </table>
+
+              <h1 style="margin:0 0 12px 0; font-size:24px; font-weight:600; letter-spacing:-0.018em; color:#0f1520; line-height:1.25;">
+                Here's your link.
+              </h1>
+
+              <p style="margin:0 0 28px 0; font-size:15px; line-height:1.55; color:#3a4560;">
+                Tap below to hop into JomRetro.
+              </p>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px 0;">
+                <tr>
+                  <td style="border-radius:999px; background:#2563eb;">
+                    <a href="{{ .ConfirmationURL }}" style="display:inline-block; padding:13px 26px; font-size:15px; font-weight:600; color:#ffffff; text-decoration:none; border-radius:999px; letter-spacing:-0.005em; line-height:1;">
+                      Open JomRetro
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 6px 0; font-size:13px; color:#7a8ba0; line-height:1.5;">
+                Or paste this into your browser:
+              </p>
+              <p style="margin:0 0 24px 0; font-size:13px; line-height:1.5; word-break:break-all;">
+                <a href="{{ .ConfirmationURL }}" style="color:#2563eb; text-decoration:underline;">{{ .ConfirmationURL }}</a>
+              </p>
+
+              <p style="margin:0 0 8px 0; font-size:12.5px; color:#7a8ba0; line-height:1.5;">
+                Single-use, expires in 1 hour. Need another? Just request again at <a href="https://jomretro.com" style="color:#7a8ba0;">jomretro.com</a>.
+              </p>
+              <p style="margin:0; font-size:12.5px; color:#7a8ba0; line-height:1.5;">
+                Didn't ask for this? Ignore this email.
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
