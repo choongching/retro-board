@@ -28,6 +28,7 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Toggle anonymous mode and reveal cards on demand
 - Export the retro as Markdown or JSON
 - Jump back to **My boards** with the back arrow in the topbar
+- **Recap a previous session** inside the new board: pull up a read-only snapshot of any past retro and review action items before kicking off the next one
 
 ### Live for everyone
 - Real-time card sync across every connected tab
@@ -57,6 +58,16 @@ Your board is saved to the database the moment you create it. Close the tab, com
 
 ### Sharing
 Inside the board, click the share icon next to the room code. That copies an invite link (`/join/<code>`) — recipients always see the name prompt before the board, even if they've used JomRetro before.
+
+### Recapping a previous session (owner-only)
+```
+inside the new board → click the history icon in the topbar
+  → wide overlay opens with your past retros listed
+  → pick one → snapshot view shows that board's columns side-by-side
+                with cards sorted by votes, anonymized, muted styling
+  → close (or Esc) → back to the live new board
+```
+The recap is **owner-local**. Only you see the modal; participants stay in the live board with no interruption. Useful for the warmup beat: scan last sprint's action items and themes, then start fresh. The recap doesn't change the new board, and nothing carries over by default.
 
 ### When something goes wrong
 - **Wrong / typo'd room code on submit** → inline error below the field: _"We couldn't find a retro with that code. Double-check it with your teammate."_ The page doesn't navigate, your name input stays put.
@@ -110,6 +121,7 @@ Boards are share-link-trusted: anyone with the code can read, post, vote, edit t
 | Reveal cards (when anon mode is on) | ✅ | — |
 | Export the retro (.md / .json) | ✅ | — |
 | Back arrow → "My boards" | ✅ | — |
+| Recap a previous session | ✅ | — |
 | Delete the board | ✅ | — |
 
 The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (anon toggle, reveal, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner.
@@ -126,6 +138,7 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - ✓ JSON import (start a fresh board from a previous one)
 - ✓ Persistent boards for signed-in creators
 - ✓ "My boards" history with delete
+- ✓ **Recap modal**: owners can pull up a read-only snapshot of any past retro inside the new board to review action items before kicking off
 - ✓ Copy-invite-link with name-collection guarantee
 - ✓ Inline form validation everywhere (empty fields, bad email format, ABC-1234 code shape)
 - ✓ DB-backed code lookup before joining — no more landing in phantom rooms
@@ -188,6 +201,7 @@ src/
     useRetroChannel.ts   # the room hook — broadcast / presence / DB write-through
     boardsApi.ts         # CRUD on boards + cards
     retroExport.ts       # JSON export/import schema
+    time.ts              # relativeTime helper (shared by Home + RecapModal)
   screens/
     Home.tsx             # split-action landing for anonymous, board list for signed-in
     Join.tsx             # name + code (invite-link participants)
