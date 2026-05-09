@@ -217,6 +217,10 @@ supabase/
   migrations/            # init schema, RLS, RPC revokes, RLS relax
 public/
   favicon.svg            # branded blue circle (matches the wordmark dot)
+  og-image.png           # 1200x630 share preview (used by OG / Twitter Card meta)
+email-templates/
+  magic-link.html        # Supabase magic-link template, source of truth
+  magic-link-preview.html # local preview with a sample URL filled in
 ```
 
 ## Toast notifications
@@ -246,6 +250,11 @@ The cursor broadcast is the only meaningful cost vector. If monthly messages app
 
 ### Custom SMTP
 Magic-link emails go via **Resend** (configured in Supabase → Authentication → Emails → SMTP Settings) to dodge the built-in 3-4/hour rate limit.
+
+### Email templates
+The branded HTML for the magic-link email lives in `email-templates/magic-link.html`. Supabase doesn't read templates from the repo, so this file is the **source of truth**: edit it here, then paste the contents into Supabase → **Authentication → Emails → Magic Link → Message body**. Subject line: `Sign in to JomRetro`. Open `email-templates/magic-link-preview.html` in a browser to eyeball changes locally before deploying.
+
+The template uses the same brand tokens as the app (`#2563eb` brand blue, `#f4f6fa` cool background, Inter Tight type stack) and the same casual voice as the home page copy. Variables used: `{{ .ConfirmationURL }}`. The 1-hour expiry mentioned in the body matches the Supabase default; if you ever raise it in the dashboard (Authentication → Sessions → Email OTP Expiration), update the copy too.
 
 ### Vercel build pinning
 `vercel.json` pins `installCommand: npm install` and `buildCommand: npm run build` so builds are deterministic against `package-lock.json`.
