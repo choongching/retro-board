@@ -10,7 +10,7 @@ import type { Profile } from '../lib/profile';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
-  canEditTitle, onTitleChange,
+  isOwner, onTitleChange,
   onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onCopyInviteLink, onChangeProfile, onProfileChange,
 }: {
   code: string;
@@ -20,7 +20,7 @@ export function BoardTopbar({
   participants: Participant[];
   anonMode: boolean;
   revealed: boolean;
-  canEditTitle: boolean;
+  isOwner: boolean;
   onTitleChange: (next: string) => void;
   onToggleAnon: () => void;
   onReveal: () => void;
@@ -79,9 +79,11 @@ export function BoardTopbar({
   return (
     <header className="topbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-        <button className="btn ghost icon" onClick={onLeave} title="Leave">
-          <Icon name="arrow-left" />
-        </button>
+        {isOwner && (
+          <button className="btn ghost icon" onClick={onLeave} title="Back to my boards">
+            <Icon name="arrow-left" />
+          </button>
+        )}
         {titleEditing ? (
           <input
             ref={titleInputRef}
@@ -107,19 +109,19 @@ export function BoardTopbar({
             className="here"
             onMouseEnter={() => setTitleHover(true)}
             onMouseLeave={() => setTitleHover(false)}
-            onClick={() => { if (canEditTitle) setTitleEditing(true); }}
-            title={canEditTitle ? 'Click to rename' : undefined}
+            onClick={() => { if (isOwner) setTitleEditing(true); }}
+            title={isOwner ? 'Click to rename' : undefined}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               fontWeight: 600, fontSize: 15,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               letterSpacing: '-0.005em',
               padding: '4px 8px', borderRadius: 6,
-              cursor: canEditTitle ? 'text' : 'default',
-              background: canEditTitle && titleHover ? 'var(--color-surface-2)' : 'transparent',
+              cursor: isOwner ? 'text' : 'default',
+              background: isOwner && titleHover ? 'var(--color-surface-2)' : 'transparent',
             }}>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
-            {canEditTitle && titleHover && (
+            {isOwner && titleHover && (
               <Icon name="edit" size={11} color="var(--color-text-muted)" />
             )}
           </div>
@@ -134,42 +136,46 @@ export function BoardTopbar({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        {anonMode && !revealed && (
+        {isOwner && anonMode && !revealed && (
           <button className="btn sm accent" onClick={onReveal}>
             <Icon name="eye" size={12} /> Reveal
           </button>
         )}
 
-        <button className="btn icon" onClick={onToggleAnon}
-          title={anonMode ? 'Anonymous mode is on' : 'Anonymous mode is off'}
-          style={anonMode ? { background: 'var(--color-brand-subtle)', borderColor: 'var(--color-brand-line)', color: 'var(--color-brand)' } : undefined}>
-          <Icon name={anonMode ? 'eye-off' : 'eye'} size={13} />
-        </button>
-
-        <div ref={exportRef} style={{ position: 'relative' }}>
-          <button className="btn icon" onClick={() => setExportOpen((v) => !v)} title="Export retro">
-            <Icon name="download" size={13} />
+        {isOwner && (
+          <button className="btn icon" onClick={onToggleAnon}
+            title={anonMode ? 'Anonymous mode is on' : 'Anonymous mode is off'}
+            style={anonMode ? { background: 'var(--color-brand-subtle)', borderColor: 'var(--color-brand-line)', color: 'var(--color-brand)' } : undefined}>
+            <Icon name={anonMode ? 'eye-off' : 'eye'} size={13} />
           </button>
-          {exportOpen && (
-            <div className="surface" role="menu" style={{
-              position: 'absolute', top: 38, right: 0, zIndex: 20,
-              padding: 4, minWidth: 160,
-              boxShadow: 'var(--shadow-lg)',
-              display: 'flex', flexDirection: 'column', gap: 2,
-            }}>
-              <button className="btn ghost" role="menuitem"
-                onClick={() => { setExportOpen(false); onExportMarkdown(); }}
-                style={{ justifyContent: 'flex-start', height: 32 }}>
-                Markdown (.md)
-              </button>
-              <button className="btn ghost" role="menuitem"
-                onClick={() => { setExportOpen(false); onExportJson(); }}
-                style={{ justifyContent: 'flex-start', height: 32 }}>
-                JSON (.json)
-              </button>
-            </div>
-          )}
-        </div>
+        )}
+
+        {isOwner && (
+          <div ref={exportRef} style={{ position: 'relative' }}>
+            <button className="btn icon" onClick={() => setExportOpen((v) => !v)} title="Export retro">
+              <Icon name="download" size={13} />
+            </button>
+            {exportOpen && (
+              <div className="surface" role="menu" style={{
+                position: 'absolute', top: 38, right: 0, zIndex: 20,
+                padding: 4, minWidth: 160,
+                boxShadow: 'var(--shadow-lg)',
+                display: 'flex', flexDirection: 'column', gap: 2,
+              }}>
+                <button className="btn ghost" role="menuitem"
+                  onClick={() => { setExportOpen(false); onExportMarkdown(); }}
+                  style={{ justifyContent: 'flex-start', height: 32 }}>
+                  Markdown (.md)
+                </button>
+                <button className="btn ghost" role="menuitem"
+                  onClick={() => { setExportOpen(false); onExportJson(); }}
+                  style={{ justifyContent: 'flex-start', height: 32 }}>
+                  JSON (.json)
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <PresenceStack participants={participants} selfId={profile.id} />
         {user ? (

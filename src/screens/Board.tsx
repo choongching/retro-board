@@ -95,7 +95,7 @@ function BoardInner({
   }, [dbBoard]);
 
   const { user } = useAuth();
-  const canEditTitle = !dbBoard || dbBoard.owner_id === user?.id;
+  const isOwner = !dbBoard || dbBoard.owner_id === user?.id;
 
   const {
     state, users, cursors,
@@ -236,7 +236,7 @@ function BoardInner({
         participants={participants}
         anonMode={state.anonMode}
         revealed={state.revealed}
-        canEditTitle={canEditTitle}
+        isOwner={isOwner}
         onTitleChange={handleTitleChange}
         onToggleAnon={handleToggleAnon}
         onReveal={handleReveal}
