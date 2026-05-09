@@ -15,7 +15,7 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Type your name → you're in (the code is checked against the database first; bogus codes get a friendly inline error instead of dropping you into an empty room)
 - Add cards, vote on cards, drag them between columns
 - See teammates' cursors and avatars in real time
-- Export the retro as Markdown or JSON
+- Copy the room code or invite link to pull in more teammates
 
 ### As a host (free, magic-link sign-in)
 - Create persistent retros that survive a refresh
@@ -26,6 +26,8 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Delete boards (cards cascade)
 - Import a JSON export to start a new retro from a saved one
 - Toggle anonymous mode and reveal cards on demand
+- Export the retro as Markdown or JSON
+- Jump back to **My boards** with the back arrow in the topbar
 
 ### Live for everyone
 - Real-time card sync across every connected tab
@@ -94,7 +96,23 @@ JomRetro is an occasional-use tool — most hosts run a retro weekly or monthly 
 Sign-in is magic-link only — no passwords. Supabase issues a single-use code, the email link drops you on `/auth/callback`, the client exchanges it for a session, and a Postgres trigger auto-creates a `profiles` row keyed to the auth user. Anonymous participants get a `localStorage` profile with a UUID + display name + auto-derived color; they coexist with real auth identities without any link between them.
 
 ### How permissions work
-Boards are share-link-trusted: anyone with the code can read, post, vote, edit text, and delete cards. Only the **owner** of a board can rename or delete the board itself — that's enforced by Row-Level Security on the server, not just the UI.
+Boards are share-link-trusted: anyone with the code can read, post, vote, edit text, and delete cards. The **owner** of a board (the signed-in creator) gets a few extra controls that other participants don't see in the UI:
+
+| Action | Owner | Participant |
+|---|---|---|
+| Read all cards | ✅ | ✅ |
+| Add / vote / edit / delete cards | ✅ | ✅ |
+| Drag cards between columns | ✅ | ✅ |
+| See teammates' cursors and presence | ✅ | ✅ |
+| Copy the room code / invite link | ✅ | ✅ |
+| Rename the board (inline title edit) | ✅ | — |
+| Toggle anonymous mode | ✅ | — |
+| Reveal cards (when anon mode is on) | ✅ | — |
+| Export the retro (.md / .json) | ✅ | — |
+| Back arrow → "My boards" | ✅ | — |
+| Delete the board | ✅ | — |
+
+The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (anon toggle, reveal, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner.
 
 ---
 
