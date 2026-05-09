@@ -397,7 +397,7 @@ export function Home() {
                       <div style={{
                         textAlign: 'center',
                         padding: '20px 16px',
-                        background: 'color-mix(in oklch, var(--color-surface-2) 40%, var(--color-bg))',
+                        background: 'var(--color-surface-2)',
                         borderRadius: 12,
                       }}>
                         <div style={{
