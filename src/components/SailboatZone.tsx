@@ -105,7 +105,7 @@ export function SailboatZone({
       <div style={headerStyle}>
         <ZoneGlyph kind={zone.glyph} color={zone.accent} />
         <div style={{ textAlign: corner === 'tr' || corner === 'br' ? 'right' : 'left' }}>
-          <div style={{ fontWeight: 600, fontSize: 14, letterSpacing: '-0.005em' }}>{zone.label}</div>
+          <div style={{ fontWeight: 600, fontSize: 15, letterSpacing: 0 }}>{zone.label}</div>
           {cards.length === 0 && (
             <div className="tiny muted" style={{ marginTop: 2, maxWidth: 220 }}>{zone.hint}</div>
           )}

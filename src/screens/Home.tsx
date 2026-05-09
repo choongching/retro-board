@@ -195,7 +195,7 @@ export function Home() {
               {/* Hero */}
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 28 }}>
                 <div>
-                  <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.02em', fontWeight: 600 }}>Retros</h1>
+                  <h1 style={{ margin: 0, fontSize: 30, letterSpacing: '-0.015em', fontWeight: 600 }}>Retros</h1>
                   <div className="muted" style={{ marginTop: 6 }}>
                     Run a quick retrospective with your team. No setup.
                   </div>
@@ -249,7 +249,7 @@ export function Home() {
 
               {/* My boards */}
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--color-text-2)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                <h2 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--color-text-2)', letterSpacing: '0.025em', textTransform: 'uppercase' }}>
                   My boards
                 </h2>
                 {myBoards && <span className="tiny muted">{myBoards.length} {myBoards.length === 1 ? 'retro' : 'retros'}</span>}
@@ -289,7 +289,7 @@ export function Home() {
                   margin: 0,
                   fontSize: 36,
                   fontWeight: 600,
-                  letterSpacing: '-0.03em',
+                  letterSpacing: '-0.025em',
                   lineHeight: 1.08,
                 }}>
                   Retros that don't drag.

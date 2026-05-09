@@ -276,7 +276,7 @@ function BoardNotFound({ code, onGoHome }: { code: string; onGoHome: () => void 
       </header>
       <main style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 380 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: '-0.02em' }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: '-0.015em' }}>
             We couldn't find that retro
           </h1>
           <div className="muted" style={{ marginTop: 8, fontSize: 14 }}>
