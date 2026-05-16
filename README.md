@@ -167,6 +167,32 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 
 ---
 
+## Recently shipped
+
+A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
+
+### May 2026
+- **Icebreaker nudge** for silent participants. A one-shot, self-only modal that asks an open-ended question after 3 minutes of inactivity in a buzzing room (3+ others present, 5+ cards posted), then turns the answer into their first card.
+- **Top-level error boundary.** Any rendering crash now shows a branded fallback page with "Try again" and "Back home" actions instead of a white screen.
+- **Route-level code splitting.** Board, Join, SignIn, and AuthCallback load on demand. Landing visitors get a smaller initial bundle, and the chunk-size warning is gone.
+- **Modal primitive.** Extracted shared modal scaffolding (backdrop, scale-in animation, Esc, click-outside, z-index) so Recap, Icebreaker, and any future modals share one source of truth.
+- **Dead CSS cleanup.** Removed 338 lines of unused styles from the old long-form landing design. CSS bundle dropped 35 percent.
+
+### April 2026
+- **Landing redesign.** Full-viewport stage with the JomRetro wordmark centered and five named cursors drifting around it. Click the wordmark to scale it up, slide it to the top, and reveal the Join / Host sign-in card. Cursors enter from a random screen edge on load and exit to the nearest edge when the card opens.
+- **Recap modal.** Owners can pull up a read-only snapshot of any past retro inside the new board to review action items before kicking off the next session. Owner-local, no broadcast.
+- **Branded magic-link email.** Custom HTML template matching the brand, source-of-truth in `email-templates/`, delivered through Resend custom SMTP.
+- **Share previews.** OG image and Twitter Card meta tags so a JomRetro link in Slack, WhatsApp, or LinkedIn shows the branded preview.
+- **Owner-only board controls.** Rename, delete, anon toggle, reveal, export, and the back arrow are gated to the board's signed-in creator. Participants get the collaborative actions; owners get the management ones.
+
+### Earlier
+- **Anonymous mode + reveal** for blind voting.
+- **JSON import / export** so retros can move into and out of the app.
+- **Real-time multiplayer** for cards, cursors, and presence.
+- **Three retro formats**: Classic, Start / Stop / Continue, Sailboat.
+
+---
+
 ## Running locally
 
 ```bash
