@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { Icon } from '../icons';
 import { FORMATS } from '../data';
 import type { Card } from '../data';
 import { getMyBoards, getCardsForBoard } from '../lib/boardsApi';
 import type { Board } from '../lib/boardsApi';
 import { relativeTime } from '../lib/time';
+import { Modal } from './Modal';
 
 type State =
   | { kind: 'picker' }
@@ -21,7 +21,6 @@ export function RecapModal({
   ownerId: string;
   currentBoardId: string | null;
 }) {
-  const reduce = useReducedMotion();
   const [state, setState] = useState<State>({ kind: 'picker' });
   const [boards, setBoards] = useState<Board[] | null>(null);
   const [cardsCache, setCardsCache] = useState<Record<string, CardsCacheValue>>({});
@@ -41,17 +40,6 @@ export function RecapModal({
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (state.kind === 'snapshot') setState({ kind: 'picker' });
-      else onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, state, onClose]);
-
-  useEffect(() => {
     if (state.kind !== 'snapshot') return;
     if (cardsCache[state.boardId]) return;
     const id = state.boardId;
@@ -67,116 +55,97 @@ export function RecapModal({
   }, [state, boards]);
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18 }}
-          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 10000,
-            background: 'rgba(15, 23, 42, 0.45)',
-            display: 'grid', placeItems: 'center',
-            padding: 24,
-          }}
-        >
-          <motion.div
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
-            animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              background: 'var(--color-surface)',
-              borderRadius: 14,
-              boxShadow: 'var(--shadow-lg)',
-              width: 'min(1240px, calc(100vw - 48px))',
-              maxHeight: 'calc(100vh - 80px)',
-              display: 'flex', flexDirection: 'column',
-              overflow: 'hidden',
-            }}
+    <Modal
+      open={open}
+      onClose={onClose}
+      onEscape={() => {
+        if (state.kind === 'snapshot') setState({ kind: 'picker' });
+        else onClose();
+      }}
+      width="min(1240px, calc(100vw - 48px))"
+      surfaceStyle={{
+        maxHeight: 'calc(100vh - 80px)',
+        display: 'flex', flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      <header style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '18px 22px',
+        borderBottom: '1px solid var(--color-divider)',
+      }}>
+        {state.kind === 'snapshot' && (
+          <button
+            type="button"
+            className="btn ghost icon"
+            onClick={() => setState({ kind: 'picker' })}
+            title="Back to list"
+            style={{ marginLeft: -6 }}
           >
-            <header style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '18px 22px',
-              borderBottom: '1px solid var(--color-divider)',
-            }}>
-              {state.kind === 'snapshot' && (
-                <button
-                  type="button"
-                  className="btn ghost icon"
-                  onClick={() => setState({ kind: 'picker' })}
-                  title="Back to list"
-                  style={{ marginLeft: -6 }}
-                >
-                  <Icon name="arrow-left" />
-                </button>
-              )}
-              <div style={{ minWidth: 0, flex: 1 }}>
-                {state.kind === 'picker' ? (
-                  <>
-                    <div style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.005em' }}>
-                      Recap a previous session
-                    </div>
-                    <div className="tiny muted" style={{ marginTop: 2 }}>
-                      A read-only snapshot — pick a past retro to review action items and themes
-                    </div>
-                  </>
-                ) : selectedBoard ? (
-                  <>
-                    <div style={{
-                      fontWeight: 600, fontSize: 17, letterSpacing: '-0.005em',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {selectedBoard.title}
-                    </div>
-                    <div className="tiny muted" style={{ marginTop: 2 }}>
-                      {FORMATS[selectedBoard.format].name} · {relativeTime(selectedBoard.last_active_at)}
-                    </div>
-                  </>
-                ) : (
-                  <div className="muted">Loading…</div>
-                )}
+            <Icon name="arrow-left" />
+          </button>
+        )}
+        <div style={{ minWidth: 0, flex: 1 }}>
+          {state.kind === 'picker' ? (
+            <>
+              <div style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.005em' }}>
+                Recap a previous session
               </div>
-              <button
-                type="button"
-                className="btn ghost icon"
-                onClick={onClose}
-                title="Close (Esc)"
-              >
-                <Icon name="x" />
-              </button>
-            </header>
+              <div className="tiny muted" style={{ marginTop: 2 }}>
+                A read-only snapshot — pick a past retro to review action items and themes
+              </div>
+            </>
+          ) : selectedBoard ? (
+            <>
+              <div style={{
+                fontWeight: 600, fontSize: 17, letterSpacing: '-0.005em',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {selectedBoard.title}
+              </div>
+              <div className="tiny muted" style={{ marginTop: 2 }}>
+                {FORMATS[selectedBoard.format].name} · {relativeTime(selectedBoard.last_active_at)}
+              </div>
+            </>
+          ) : (
+            <div className="muted">Loading…</div>
+          )}
+        </div>
+        <button
+          type="button"
+          className="btn ghost icon"
+          onClick={onClose}
+          title="Close (Esc)"
+        >
+          <Icon name="x" />
+        </button>
+      </header>
 
-            <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
-              {state.kind === 'picker' ? (
-                <PickerView
-                  boards={boards}
-                  onPick={(boardId) => setState({ kind: 'snapshot', boardId })}
-                />
-              ) : selectedBoard ? (
-                <SnapshotView
-                  board={selectedBoard}
-                  cards={cardsCache[state.boardId]}
-                  onRetry={() => {
-                    setCardsCache((prev) => {
-                      const next = { ...prev };
-                      delete next[state.boardId];
-                      return next;
-                    });
-                  }}
-                />
-              ) : (
-                <div className="muted" style={{ textAlign: 'center', padding: 48 }}>
-                  Loading board…
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+        {state.kind === 'picker' ? (
+          <PickerView
+            boards={boards}
+            onPick={(boardId) => setState({ kind: 'snapshot', boardId })}
+          />
+        ) : selectedBoard ? (
+          <SnapshotView
+            board={selectedBoard}
+            cards={cardsCache[state.boardId]}
+            onRetry={() => {
+              setCardsCache((prev) => {
+                const next = { ...prev };
+                delete next[state.boardId];
+                return next;
+              });
+            }}
+          />
+        ) : (
+          <div className="muted" style={{ textAlign: 'center', padding: 48 }}>
+            Loading board…
+          </div>
+        )}
+      </div>
+    </Modal>
   );
 }
 
