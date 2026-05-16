@@ -35,6 +35,7 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Real-time cursor positions
 - Real-time avatar presence
 - Anonymous mode + reveal flow for blind voting
+- **Icebreaker nudge** for anyone who's been silent in a busy room. After about 3 minutes with at least 3 others present and 5 cards already on the board, a one-time, self-only modal opens with a friendly open-ended prompt. Type a sentence, pick a column, and your answer becomes your first card.
 
 ---
 
@@ -68,6 +69,18 @@ inside the new board → click the history icon in the topbar
   → close (or Esc) → back to the live new board
 ```
 The recap is **owner-local**. Only you see the modal; participants stay in the live board with no interruption. Useful for the warmup beat: scan last sprint's action items and themes, then start fresh. The recap doesn't change the new board, and nothing carries over by default.
+
+### Icebreaker nudge for silent participants
+```
+join the board → 3 minutes pass with no card from you
+  → AND there are 3+ other participants in the room
+  → AND there are 5+ cards on the board already
+  → icebreaker modal opens just for you, once
+     "Hey there, do you have any particular notes to add from this sprint?"
+  → type a sentence, pick a column, click "Drop it in"
+  → your answer becomes your first card, broadcasts to everyone
+```
+The modal is **self-only**: other participants never know it appeared, so there's no public shaming. It fires once per tab session and is dismissible via Esc, the X, click-outside, or "Maybe later", with no nag if you don't engage. The trigger only fires when the room is clearly active (others present and posting), so a host opening a fresh board never sees it. The prompt is one of three open-ended questions, picked at random. Each tab session is a fresh chance: refresh resets the one-shot flag.
 
 ### When something goes wrong
 - **Wrong / typo'd room code on submit** → inline error below the field: _"We couldn't find a retro with that code. Double-check it with your teammate."_ The page doesn't navigate, your name input stays put.
@@ -139,6 +152,7 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - ✓ Persistent boards for signed-in creators
 - ✓ "My boards" history with delete
 - ✓ **Recap modal**: owners can pull up a read-only snapshot of any past retro inside the new board to review action items before kicking off
+- ✓ **Icebreaker nudge**: a one-shot, self-only modal that invites silent participants to drop their first card with an open-ended prompt, never visible to others
 - ✓ Copy-invite-link with name-collection guarantee
 - ✓ Inline form validation everywhere (empty fields, bad email format, ABC-1234 code shape)
 - ✓ DB-backed code lookup before joining — no more landing in phantom rooms
@@ -202,6 +216,8 @@ src/
     boardsApi.ts         # CRUD on boards + cards
     retroExport.ts       # JSON export/import schema
     time.ts              # relativeTime helper (shared by Home + RecapModal)
+    icebreakerQuestions.ts # universal open-ended prompts + randomizer
+    useIcebreakerTrigger.ts # hook that watches dwell time / room state / own posts
   screens/
     Home.tsx             # split-action landing for anonymous, board list for signed-in
     Join.tsx             # name + code (invite-link participants)
@@ -212,7 +228,8 @@ src/
     BoardTopbar, BoardSurface, ColumnsSurface, Column,
     SailboatSurface, SailboatZone, StickyCard, Composer,
     PresenceCursors, PresenceStack, ProfilePill, UserMenu,
-    AuthPill, RetroWordmark, FormatGlyph
+    AuthPill, RetroWordmark, FormatGlyph,
+    RecapModal, IcebreakerModal
 supabase/
   migrations/            # init schema, RLS, RPC revokes, RLS relax
 public/
