@@ -76,7 +76,7 @@ export function RecapModal({
           transition={{ duration: 0.18 }}
           onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
           style={{
-            position: 'fixed', inset: 0, zIndex: 100,
+            position: 'fixed', inset: 0, zIndex: 10000,
             background: 'rgba(15, 23, 42, 0.45)',
             display: 'grid', placeItems: 'center',
             padding: 24,

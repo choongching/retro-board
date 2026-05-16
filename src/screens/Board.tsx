@@ -14,7 +14,9 @@ import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
 import { RecapModal } from '../components/RecapModal';
+import { IcebreakerModal } from '../components/IcebreakerModal';
 import { RetroWordmark } from '../components/RetroWordmark';
+import { useIcebreakerTrigger } from '../lib/useIcebreakerTrigger';
 
 type ImportedNavState = { importedTitle?: string; importedCards?: Card[] };
 
@@ -113,6 +115,16 @@ function BoardInner({
     }
     return [...seen.values()];
   }, [users]);
+
+  const myJoinedAt = useMemo(() => users.find((u) => u.id === profile.id)?.joinedAt, [users, profile.id]);
+  const icebreaker = useIcebreakerTrigger({
+    cards: state.cards,
+    participants,
+    profileId: profile.id,
+    anonMode: state.anonMode,
+    revealed: state.revealed,
+    myJoinedAt,
+  });
 
   const showToast = useCallback((msg: string) => { toast(msg); }, []);
 
@@ -276,6 +288,16 @@ function BoardInner({
           currentBoardId={dbBoard?.id ?? null}
         />
       )}
+
+      <IcebreakerModal
+        open={icebreaker.shouldOpen}
+        onClose={icebreaker.dismiss}
+        format={state.format}
+        onSubmit={(text, col) => {
+          addCard({ col, text, authorId: profile.id });
+          icebreaker.dismiss();
+        }}
+      />
     </div>
   );
 }
