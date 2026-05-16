@@ -840,6 +840,51 @@ input, textarea { font: inherit; color: inherit; }
   transition: opacity .8s ease 1s; /* delay fade until cursors have left */
 }
 .cursor-swarm.is-dismissed { opacity: 0; }
+
+/* ──────────────────────────────────────────────────────
+   Error boundary fallback — last-resort UI on render error
+   ────────────────────────────────────────────────────── */
+.error-fallback {
+  height: 100vh; width: 100%;
+  display: grid; place-items: center;
+  background: var(--color-bg);
+  padding: 24px;
+}
+.error-fallback-inner {
+  max-width: 460px; width: 100%;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.error-fallback-title {
+  font-size: 28px; font-weight: 600; letter-spacing: -0.022em;
+  margin: 14px 0 0; line-height: 1.2;
+}
+.error-fallback-body {
+  font-size: 15px; line-height: 1.55;
+  color: var(--color-text-2);
+  margin: 0;
+}
+.error-fallback-actions {
+  display: flex; gap: 10px; margin-top: 4px;
+}
+.error-fallback-details {
+  margin-top: 12px; width: 100%;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+.error-fallback-details summary { cursor: pointer; padding: 4px 0; }
+.error-fallback-details pre {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--color-surface-2);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 11.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 .landing-cursor {
   position: absolute;
   transition-property: left, top;
