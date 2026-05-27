@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { toast } from 'sonner';
 import { FORMATS } from '../data';
 import type { Card, ColumnId, FormatId } from '../data';
@@ -13,8 +14,10 @@ import type { Board as DbBoard } from '../lib/boardsApi';
 import { BoardTopbar } from '../components/BoardTopbar';
 import { BoardSurface } from '../components/BoardSurface';
 import { PresenceCursors } from '../components/PresenceCursors';
+import { CursorPublisher } from '../components/CursorPublisher';
 import { RecapModal } from '../components/RecapModal';
 import { IcebreakerModal } from '../components/IcebreakerModal';
+import { LobbyScreen } from '../components/LobbyScreen';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { useIcebreakerTrigger } from '../lib/useIcebreakerTrigger';
 
@@ -88,6 +91,7 @@ function BoardInner({
     format: initialFormat,
     title: dbBoard?.title ?? imported?.importedTitle ?? `Retro ${code}`,
     cards: dbBoard ? dbCards : (imported?.importedCards ?? []),
+    startedAt: dbBoard?.started_at ? new Date(dbBoard.started_at).getTime() : null,
   }), [initialFormat, code, imported, dbBoard, dbCards]);
 
   useEffect(() => {
@@ -105,13 +109,16 @@ function BoardInner({
     state, users, cursors,
     addCard, editCard, deleteCard, voteCard, moveCard,
     updateSettings, sendCursor,
-  } = useRetroChannel(code, profile, initialState, dbBoard?.id);
+  } = useRetroChannel(code, profile, initialState, dbBoard?.id, isOwner);
 
   const fmt = FORMATS[state.format];
   const participants = useMemo(() => {
-    const seen = new Map<string, { id: string; name: string; color: string }>();
+    const seen = new Map<string, { id: string; name: string; color: string; isHost: boolean }>();
     for (const u of users) {
-      if (!seen.has(u.id)) seen.set(u.id, { id: u.id, name: u.name, color: u.color });
+      const prev = seen.get(u.id);
+      // Preserve the host flag if any presence entry under this id has it.
+      const isHost = u.isHost === true || prev?.isHost === true;
+      seen.set(u.id, { id: u.id, name: u.name, color: u.color, isHost });
     }
     return [...seen.values()];
   }, [users]);
@@ -124,11 +131,17 @@ function BoardInner({
     anonMode: state.anonMode,
     revealed: state.revealed,
     myJoinedAt,
+    startedAt: state.startedAt,
   });
+
+  const reduce = useReducedMotion();
+  const handleStart = useCallback(() => {
+    updateSettings({ startedAt: Date.now() });
+  }, [updateSettings]);
 
   const showToast = useCallback((msg: string) => { toast(msg); }, []);
 
-  // Card mutations — wrappers preserve the prototype's prop signatures
+  // Card mutations: wrappers preserve the prototype's prop signatures
   const handleAdd = useCallback((col: ColumnId, text: string) => {
     if (!text.trim()) return;
     addCard({ col, text: text.trim(), authorId: profile.id });
@@ -153,7 +166,7 @@ function BoardInner({
 
   const handleCopyCode = useCallback(() => {
     navigator.clipboard?.writeText(code).catch(() => {});
-    showToast('Copied room code');
+    showToast('Room code copied');
   }, [code, showToast]);
 
   const handleCopyInviteLink = useCallback(() => {
@@ -175,7 +188,7 @@ function BoardInner({
       if (inCol.length === 0) lines.push('_(empty)_');
       inCol.forEach((c) => {
         const author = participants.find((p) => p.id === c.authorId)?.name || 'Anonymous';
-        lines.push(`- (${c.votes.length} votes) ${c.text}  — _${author}_`);
+        lines.push(`- (${c.votes.length} votes) ${c.text}  _${author}_`);
       });
       lines.push('');
     });
@@ -201,104 +214,102 @@ function BoardInner({
     showToast('Exported as JSON');
   }, [code, state.title, state.format, state.cards, profile.name, showToast]);
 
-  // Cursor publishing — throttled to ~10 Hz; suppressed while typing in a textarea
-  const surfaceRef = useRef<HTMLElement | null>(null);
-  const lastSentRef = useRef(0);
-  const pendingRef = useRef<{ x: number; y: number } | null>(null);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const surface = document.querySelector<HTMLElement>('[data-board-surface]');
-    surfaceRef.current = surface;
-    if (!surface) return;
-
-    const flush = () => {
-      rafRef.current = null;
-      const p = pendingRef.current;
-      if (!p) return;
-      const now = Date.now();
-      if (now - lastSentRef.current < 100) {
-        rafRef.current = requestAnimationFrame(flush);
-        return;
-      }
-      lastSentRef.current = now;
-      pendingRef.current = null;
-      sendCursor(p.x, p.y);
-    };
-
-    const handler = (e: MouseEvent) => {
-      if (document.activeElement?.tagName === 'TEXTAREA') return;
-      const rect = surface.getBoundingClientRect();
-      pendingRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      if (rafRef.current == null) rafRef.current = requestAnimationFrame(flush);
-    };
-
-    surface.addEventListener('mousemove', handler);
-    return () => {
-      surface.removeEventListener('mousemove', handler);
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-    };
-  }, [sendCursor, state.format]);
+  const fadeTransition = reduce ? { duration: 0 } : { duration: 0.2 };
 
   return (
-    <div className="app-shell">
-      <BoardTopbar
-        code={code}
-        title={state.title}
-        fmt={fmt}
-        profile={profile}
-        participants={participants}
-        anonMode={state.anonMode}
-        revealed={state.revealed}
-        isOwner={isOwner}
-        onTitleChange={handleTitleChange}
-        onToggleAnon={handleToggleAnon}
-        onReveal={handleReveal}
-        onExportMarkdown={exportMarkdown}
-        onExportJson={exportJsonHandler}
-        onLeave={onLeave}
-        onCopyCode={handleCopyCode}
-        onCopyInviteLink={handleCopyInviteLink}
-        onChangeProfile={onChangeProfile}
-        onProfileChange={setProfile}
-        onOpenRecap={() => setRecapOpen(true)}
-      />
+    <AnimatePresence mode="wait" initial={false}>
+      {state.startedAt == null ? (
+        <motion.div
+          key="lobby"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fadeTransition}
+        >
+          <LobbyScreen
+            code={code}
+            title={state.title}
+            format={state.format}
+            participants={participants}
+            isOwner={isOwner}
+            onStart={handleStart}
+            onCopyInviteLink={handleCopyInviteLink}
+            onLeave={onLeave}
+          />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="live"
+          className="app-shell"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={fadeTransition}
+        >
+          <BoardTopbar
+            code={code}
+            title={state.title}
+            fmt={fmt}
+            profile={profile}
+            participants={participants}
+            anonMode={state.anonMode}
+            revealed={state.revealed}
+            isOwner={isOwner}
+            onTitleChange={handleTitleChange}
+            onToggleAnon={handleToggleAnon}
+            onReveal={handleReveal}
+            onExportMarkdown={exportMarkdown}
+            onExportJson={exportJsonHandler}
+            onLeave={onLeave}
+            onCopyCode={handleCopyCode}
+            onCopyInviteLink={handleCopyInviteLink}
+            onChangeProfile={onChangeProfile}
+            onProfileChange={setProfile}
+            onOpenRecap={() => setRecapOpen(true)}
+          />
 
-      <BoardSurface
-        fmt={fmt}
-        cards={state.cards}
-        profile={profile}
-        participants={participants}
-        anonMode={state.anonMode}
-        revealed={state.revealed}
-        onAdd={handleAdd}
-        onEdit={editCard}
-        onDelete={deleteCard}
-        onVote={handleVote}
-        onMove={moveCard}
-      />
+          <BoardSurface
+            fmt={fmt}
+            cards={state.cards}
+            profile={profile}
+            participants={participants}
+            anonMode={state.anonMode}
+            revealed={state.revealed}
+            onAdd={handleAdd}
+            onEdit={editCard}
+            onDelete={deleteCard}
+            onVote={handleVote}
+            onMove={moveCard}
+          />
 
-      <PresenceCursors users={users} cursors={cursors} selfId={profile.id} />
+          <PresenceCursors
+            users={users}
+            cursors={cursors}
+            selfId={profile.id}
+          />
+          <CursorPublisher sendCursor={sendCursor} />
 
-      {isOwner && user && (
-        <RecapModal
-          open={recapOpen}
-          onClose={() => setRecapOpen(false)}
-          ownerId={user.id}
-          currentBoardId={dbBoard?.id ?? null}
-        />
+          {isOwner && user && (
+            <RecapModal
+              open={recapOpen}
+              onClose={() => setRecapOpen(false)}
+              ownerId={user.id}
+              currentBoardId={dbBoard?.id ?? null}
+            />
+          )}
+
+          <IcebreakerModal
+            open={icebreaker.shouldOpen}
+            onClose={icebreaker.dismiss}
+            format={state.format}
+            onSubmit={(text, col) => {
+              addCard({ col, text, authorId: profile.id });
+              icebreaker.dismiss();
+            }}
+          />
+        </motion.div>
       )}
-
-      <IcebreakerModal
-        open={icebreaker.shouldOpen}
-        onClose={icebreaker.dismiss}
-        format={state.format}
-        onSubmit={(text, col) => {
-          addCard({ col, text, authorId: profile.id });
-          icebreaker.dismiss();
-        }}
-      />
-    </div>
+    </AnimatePresence>
   );
 }
 

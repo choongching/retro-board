@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Icon } from '../icons';
 import { StickyCard } from './StickyCard';
 import { Composer } from './Composer';
 import type { Participant } from './StickyCard';
@@ -62,8 +63,10 @@ export function SailboatZone({
   onVote: (id: string) => void;
   onMove: (id: string, col: ColumnId, beforeId?: string) => void;
 }) {
-  const sorted = [...cards].sort((a, b) => (b.votes.length - a.votes.length) || (a.createdAt - b.createdAt));
+  // Preserve insertion order; no vote-based reordering.
+  const sorted = cards;
   const [hover, setHover] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
   const corner = zone.corner;
 
   const headerStyle: React.CSSProperties = {
@@ -105,14 +108,36 @@ export function SailboatZone({
       <div style={headerStyle}>
         <ZoneGlyph kind={zone.glyph} color={zone.accent} />
         <div style={{ textAlign: corner === 'tr' || corner === 'br' ? 'right' : 'left' }}>
-          <div style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.01em' }}>{zone.label}</div>
-          {cards.length === 0 && (
-            <div className="tiny muted" style={{ marginTop: 2, maxWidth: 220 }}>{zone.hint}</div>
-          )}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            flexDirection: corner === 'tr' || corner === 'br' ? 'row-reverse' : 'row',
+          }}>
+            <div style={{ fontWeight: 600, fontSize: 17, letterSpacing: '-0.01em' }}>{zone.label}</div>
+            <button
+              type="button"
+              className="add-note-btn"
+              onClick={() => setComposerOpen(true)}
+              disabled={composerOpen}
+              title="Add a new note"
+              aria-label={`Add a new note to ${zone.label}`}
+            >
+              <Icon name="plus" size={13} />
+              <span>Note</span>
+            </button>
+          </div>
+          <div className="tiny muted" style={{ marginTop: 2, maxWidth: 220 }}>{zone.hint}</div>
         </div>
       </div>
 
       <div style={cardsContainerStyle}>
+        {composerOpen && (
+          <Composer
+            col={{ id: zoneId, accent: zone.accent }}
+            profile={profile}
+            onAdd={onAdd}
+            onClose={() => setComposerOpen(false)}
+          />
+        )}
         {sorted.map((card) => (
           <StickyCard
             key={card.id} card={card}
@@ -125,7 +150,6 @@ export function SailboatZone({
             onEdit={onEdit} onDelete={onDelete} onVote={onVote}
           />
         ))}
-        <Composer col={{ id: zoneId, accent: zone.accent }} profile={profile} onAdd={onAdd} />
       </div>
     </section>
   );

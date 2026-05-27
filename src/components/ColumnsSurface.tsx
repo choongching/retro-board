@@ -26,8 +26,9 @@ export function ColumnsSurface({
     <main
       data-board-surface
       style={{
-        flex: 1, overflow: 'auto',
-        padding: '20px 22px 32px',
+        flex: 1, minHeight: 0,
+        overflow: 'hidden',
+        padding: '20px 22px',
         background: 'var(--color-bg)',
         position: 'relative',
       }}>
@@ -36,7 +37,7 @@ export function ColumnsSurface({
         gridTemplateColumns: `repeat(${fmt.columns.length}, minmax(0, 1fr))`,
         gap: 16,
         maxWidth: 1400, margin: '0 auto',
-        minHeight: '100%',
+        height: '100%',
       }}>
         {fmt.columns.map((col) => (
           <Column

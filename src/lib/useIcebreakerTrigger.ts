@@ -13,6 +13,7 @@ export function useIcebreakerTrigger({
   anonMode,
   revealed,
   myJoinedAt,
+  startedAt,
 }: {
   cards: Card[];
   participants: Array<{ id: string }>;
@@ -20,6 +21,7 @@ export function useIcebreakerTrigger({
   anonMode: boolean;
   revealed: boolean;
   myJoinedAt: number | undefined;
+  startedAt?: number | null;
 }): { shouldOpen: boolean; dismiss: () => void } {
   const [shouldOpen, setShouldOpen] = useState(false);
   const openedRef = useRef(false);
@@ -35,7 +37,10 @@ export function useIcebreakerTrigger({
     if (openedRef.current || dismissedRef.current) return;
     if (!myJoinedAt) return;
 
-    const dwellMs = Date.now() - myJoinedAt;
+    // Clock starts from whichever is later: when I joined, or when the retro started.
+    // Keeps the icebreaker from firing for someone who waited in the lobby for a while.
+    const clockStart = Math.max(myJoinedAt, startedAt ?? 0);
+    const dwellMs = Date.now() - clockStart;
     if (dwellMs < MIN_DURATION_MS) return;
 
     const otherParticipants = participants.filter((p) => p.id !== profileId).length;

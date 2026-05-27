@@ -388,7 +388,7 @@ function Cursor({ persona, dismissed }: { persona: Persona; dismissed: boolean }
     return () => clearTimeout(t);
   }, [phase, pos, persona]);
 
-  // dismissal — fly to nearest edge, stay there
+  // dismissal: fly to nearest edge, stay there
   useEffect(() => {
     if (!dismissed || phase === 'leaving') return;
     setPhase('leaving');

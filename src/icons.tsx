@@ -1,4 +1,4 @@
-// icons.tsx — minimal stroke icons
+// icons.tsx: minimal stroke icons
 
 export type IconName =
   | 'plus' | 'x' | 'check'

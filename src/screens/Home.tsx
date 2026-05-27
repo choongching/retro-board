@@ -132,10 +132,10 @@ export function Home() {
               <button className="btn" onClick={onImportClick} title="Start a new retro from a JSON file">
                 <Icon name="download" /> Import JSON
               </button>
-              <button className="btn" onClick={() => onJoin()}>
+              <button className="btn" onClick={() => onJoin()} title="Enter a 6-letter code to join an existing retro">
                 <Icon name="key" /> Join with code
               </button>
-              <button className="btn accent" onClick={() => onCreate()}>
+              <button className="btn accent" onClick={() => onCreate()} title="Pick a format and start a fresh retro">
                 <Icon name="plus" /> New retro
               </button>
             </div>
@@ -150,6 +150,7 @@ export function Home() {
                 key={f.id}
                 onClick={() => onCreate(f.id)}
                 className="surface"
+                title={`Start a new ${f.name} retro`}
                 style={{
                   textAlign: 'left', padding: 16,
                   cursor: 'pointer', background: 'var(--color-surface)',
@@ -186,7 +187,7 @@ export function Home() {
             <div className="muted tiny" style={{ padding: 24, textAlign: 'center' }}>Loading…</div>
           ) : myBoards.length === 0 ? (
             <div className="surface" style={{ padding: 24, textAlign: 'center' }}>
-              <div className="muted">No retros yet — click "New retro" to start one.</div>
+              <div className="muted">No retros yet. Click "New retro" to start one.</div>
             </div>
           ) : (
             <div className="surface" style={{ padding: 0, overflow: 'hidden' }}>

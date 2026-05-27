@@ -6,6 +6,7 @@ import type { Profile } from './profile';
 import {
   deleteCardById,
   insertCard,
+  setBoardStartedAt,
   setCardVotes,
   updateBoardTitle,
   updateCardCol,
@@ -18,6 +19,7 @@ export type RoomState = {
   cards: Card[];
   anonMode: boolean;
   revealed: boolean;
+  startedAt: number | null;
 };
 
 export type User = {
@@ -25,6 +27,7 @@ export type User = {
   name: string;
   color: string;
   joinedAt: number;
+  isHost?: boolean;
   cursor?: { x: number; y: number };
 };
 
@@ -43,6 +46,7 @@ const EMPTY: RoomState = {
   cards: [],
   anonMode: false,
   revealed: true,
+  startedAt: null,
 };
 
 export function useRetroChannel(
@@ -50,6 +54,7 @@ export function useRetroChannel(
   profile: Profile,
   initialState?: Partial<RoomState>,
   boardId?: string,
+  isHost: boolean = false,
 ) {
   const [state, setState] = useState<RoomState>({ ...EMPTY, ...initialState });
   const [users, setUsers] = useState<User[]>([]);
@@ -119,6 +124,7 @@ export function useRetroChannel(
           name: profile.name,
           color: profile.color,
           joinedAt: Date.now(),
+          isHost,
         });
       }
     });
@@ -127,7 +133,7 @@ export function useRetroChannel(
       channel.unsubscribe();
       channelRef.current = null;
     };
-  }, [roomCode, profile.id, profile.name, profile.color]);
+  }, [roomCode, profile.id, profile.name, profile.color, isHost]);
 
   // Helper: send a patch AND apply it locally (optimistic).
   const sendPatch = useCallback((patch: Patch) => {
@@ -170,7 +176,7 @@ export function useRetroChannel(
     [sendPatch],
   );
 
-  // Cursor broadcast — ephemeral; never re-track() (which accumulates presence entries).
+  // Cursor broadcast: ephemeral; never re-track() (which accumulates presence entries).
   const sendCursor = useCallback(
     (x: number, y: number) => {
       channelRef.current?.send({
@@ -197,7 +203,7 @@ export function useRetroChannel(
 }
 
 // Fire-and-forget DB write for the originating tab; receivers don't write.
-// `prev` is the room state before the patch was applied — needed to derive
+// `prev` is the room state before the patch was applied; needed to derive
 // the new vote array (the patch only carries the toggling user id).
 function writePatchThrough(
   boardId: string,
@@ -228,9 +234,12 @@ function writePatchThrough(
       void updateCardCol(patch.id, patch.col);
       break;
     case 'settings':
-      // Only the title is persisted to `boards`; anonMode/revealed stay in-memory.
+      // Persist title and startedAt to `boards`; anonMode/revealed stay in-memory.
       if (typeof patch.patch.title === 'string') {
         void updateBoardTitle(boardId, patch.patch.title);
+      }
+      if (typeof patch.patch.startedAt === 'number') {
+        void setBoardStartedAt(boardId, new Date(patch.patch.startedAt).toISOString());
       }
       break;
   }

@@ -1,4 +1,5 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 type Props = {
@@ -32,7 +33,11 @@ export function Modal({
     return () => document.removeEventListener('keydown', handler);
   }, [open, onClose, onEscape]);
 
-  return (
+  // Portal to <body> so ancestor `transform`/`filter`/`will-change` styles
+  // (e.g. the rotated sticky cards) don't trap our position:fixed overlay.
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -66,6 +71,7 @@ export function Modal({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

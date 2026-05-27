@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../icons';
 import { colorForName, initials, tintForName } from '../data';
 import type { Card } from '../data';
 import type { Profile } from '../lib/profile';
+import { NoteEditor } from './NoteEditor';
 
 export type Participant = { id: string; name: string; color: string };
 
@@ -27,15 +28,8 @@ export function StickyCard({
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(card.text);
   const [dropPos, setDropPos] = useState<'before' | null>(null);
-  const taRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => { setText(card.text); }, [card.text]);
-  useEffect(() => {
-    if (editing) {
-      taRef.current?.focus();
-      taRef.current?.setSelectionRange(text.length, text.length);
-    }
-  }, [editing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const author = participants.find((p) => p.id === card.authorId);
   const authorName = author?.name || 'Anonymous';
@@ -54,9 +48,15 @@ export function StickyCard({
   const tintVar = tintForName(authorName);
 
   const finishEdit = () => {
+    const trimmed = text.trim();
+    if (trimmed && trimmed !== card.text) onEdit(card.id, trimmed);
+    if (!trimmed) setText(card.text);
     setEditing(false);
-    if (text.trim() && text !== card.text) onEdit(card.id, text.trim());
-    else if (!text.trim()) { setText(card.text); }
+  };
+
+  const cancelEdit = () => {
+    setText(card.text);
+    setEditing(false);
   };
 
   return (
@@ -91,20 +91,15 @@ export function StickyCard({
       )}
 
       {editing ? (
-        <textarea
-          ref={taRef}
+        <NoteEditor
           value={text}
-          onChange={(e) => setText(e.target.value)}
-          onBlur={finishEdit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finishEdit(); }
-            if (e.key === 'Escape') { setText(card.text); setEditing(false); }
-          }}
-          style={{
-            width: '100%', minHeight: 50, resize: 'none',
-            border: 0, outline: 0, background: 'transparent',
-            font: 'inherit', color: 'inherit',
-          }}
+          onChange={setText}
+          onSubmit={finishEdit}
+          onCancel={cancelEdit}
+          placeholder="Type your thought…"
+          submitLabel="Save"
+          cancelLabel="Cancel"
+          hintVerb="save"
         />
       ) : (
         <div className="sticky-text" onDoubleClick={() => isMine && setEditing(true)}>
@@ -128,13 +123,15 @@ export function StickyCard({
             <span style={{ fontStyle: 'italic', opacity: 0.6 }}>Anonymous</span>
           )}
         </div>
-        <button
-          className={`sticky-vote ${youVoted ? 'voted' : ''}`}
-          onClick={(e) => { e.stopPropagation(); onVote(card.id); }}
-          title={youVoted ? 'Remove vote' : 'Vote'}>
-          <Icon name="arrow-up" size={10} />
-          {card.votes.length}
-        </button>
+        {!editing && (
+          <button
+            className={`sticky-vote ${youVoted ? 'voted' : ''}`}
+            onClick={(e) => { e.stopPropagation(); onVote(card.id); }}
+            title={youVoted ? 'Remove vote' : 'Vote'}>
+            <Icon name="arrow-up" size={10} />
+            {card.votes.length}
+          </button>
+        )}
       </div>
     </div>
   );

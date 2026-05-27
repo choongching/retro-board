@@ -92,7 +92,7 @@ export function RecapModal({
                 Recap a previous session
               </div>
               <div className="tiny muted" style={{ marginTop: 2 }}>
-                A read-only snapshot — pick a past retro to review action items and themes
+                A read-only snapshot. Pick a past retro to review action items and themes.
               </div>
             </>
           ) : selectedBoard ? (
@@ -215,7 +215,7 @@ function SnapshotView({
   onRetry: () => void;
 }) {
   if (cards === undefined || cards === 'loading') {
-    return <div className="muted" style={{ textAlign: 'center', padding: 48 }}>Loading cards…</div>;
+    return <div className="muted" style={{ textAlign: 'center', padding: 48 }}>Loading notes…</div>;
   }
   if (cards === 'error') {
     return (

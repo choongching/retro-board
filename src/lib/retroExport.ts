@@ -1,5 +1,5 @@
 // Export / import retro state as JSON.
-// Author IDs are stripped on import — they're meaningless in a new room.
+// Author IDs are stripped on import; they're meaningless in a new room.
 // Votes are also stripped to avoid orphaned vote IDs.
 
 import type { Card, FormatId } from '../data';
@@ -105,7 +105,7 @@ export function parseAndValidate(text: string): ParseResult {
   };
 }
 
-// Anonymize on import — author IDs and votes belong to the source room.
+// Anonymize on import: author IDs and votes belong to the source room.
 // Cards keep their text/col so the structure is reproducible.
 export function stripAuthorsAndVotes(cards: Card[]): Card[] {
   return cards.map((c) => ({
