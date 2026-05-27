@@ -15,7 +15,7 @@ export function SignIn() {
 
   const next = searchParams.get('next') || '/';
 
-  // Already signed in — bounce them
+  // Already signed in, bounce them
   if (session) {
     navigate(next, { replace: true });
     return null;

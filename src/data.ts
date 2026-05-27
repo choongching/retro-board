@@ -1,4 +1,4 @@
-// data.ts — shared types, formats, and color helpers
+// data.ts: shared types, formats, and color helpers
 
 export type FormatId = 'classic' | 'ssc' | 'sailboat';
 export type ColumnId =
@@ -67,32 +67,32 @@ export const FORMATS: Record<FormatId, Format> = {
   ssc: {
     id: 'ssc',
     name: 'Start / Stop / Continue',
-    desc: 'Lightweight, action-oriented.',
+    desc: 'Decisive and lightweight. What to start, stop, or keep going.',
     columns: [
-      { id: 'start', label: 'Start', hint: 'New things to try',     accent: '#3D8B7A' },
-      { id: 'stop',  label: 'Stop',  hint: 'Things to leave behind', accent: '#C77B58' },
-      { id: 'cont',  label: 'Continue', hint: 'Keep doing this',     accent: '#7C6FB0' },
+      { id: 'start', label: 'Start', hint: 'Experiments worth trying',     accent: '#3D8B7A' },
+      { id: 'stop',  label: 'Stop',  hint: 'Habits no longer serving us',  accent: '#C77B58' },
+      { id: 'cont',  label: 'Continue', hint: 'Worth doubling down on',    accent: '#7C6FB0' },
     ],
   },
   classic: {
     id: 'classic',
-    name: 'Went Well / To Improve / Actions',
-    desc: 'The standard end-of-sprint retro.',
+    name: 'Went Well / To Improve / Action Items',
+    desc: 'Celebrate wins, surface friction, commit to next steps.',
     columns: [
-      { id: 'well',    label: 'Went well',  hint: 'What worked',    accent: '#3D8B7A' },
-      { id: 'improve', label: 'To improve', hint: 'What didn’t', accent: '#D4A93C' },
-      { id: 'action',  label: 'Action items', hint: 'What we’ll do', accent: '#7C6FB0' },
+      { id: 'well',    label: 'Went well',    hint: 'What energized us',     accent: '#3D8B7A' },
+      { id: 'improve', label: 'To improve',   hint: 'What slowed us down',   accent: '#D4A93C' },
+      { id: 'action',  label: 'Action items', hint: 'What we’ll commit to',  accent: '#7C6FB0' },
     ],
   },
   sailboat: {
     id: 'sailboat',
     name: 'Sailboat',
-    desc: 'A metaphor for what’s pushing or holding the team.',
+    desc: 'Visual metaphor. What’s moving you, slowing you, and where you’re sailing.',
     columns: [
-      { id: 'wind',        label: 'Wind',        hint: 'What’s moving us forward?',   accent: '#3D8B7A', glyph: 'wind' },
-      { id: 'anchor',      label: 'Anchor',      hint: 'What’s holding us back?',     accent: '#C77B58', glyph: 'anchor' },
-      { id: 'shark',       label: 'Shark',       hint: 'What are the risks ahead?',        accent: '#B85C8A', glyph: 'shark' },
-      { id: 'destination', label: 'Destination', hint: 'What are we working toward?',      accent: '#D4A93C', glyph: 'destination' },
+      { id: 'wind',        label: 'Wind',        hint: 'What’s giving us momentum', accent: '#3D8B7A', glyph: 'wind' },
+      { id: 'anchor',      label: 'Anchor',      hint: 'What’s weighing us down',   accent: '#C77B58', glyph: 'anchor' },
+      { id: 'shark',       label: 'Shark',       hint: 'Risks on the horizon',      accent: '#B85C8A', glyph: 'shark' },
+      { id: 'destination', label: 'Destination', hint: 'Where we’re headed',        accent: '#D4A93C', glyph: 'destination' },
     ],
   },
 };

@@ -132,7 +132,7 @@ export function BoardTopbar({
           style={{ marginLeft: 4, background: 'var(--color-surface-2)', borderColor: 'transparent' }}>
           <span className="mono" style={{ letterSpacing: '0.06em', color: 'var(--color-text-2)' }}>{code}</span>
         </button>
-        <button className="btn icon sm" onClick={onCopyInviteLink} title="Copy invite link — recipients enter their name before the board loads">
+        <button className="btn icon sm" onClick={onCopyInviteLink} title="Copy invite link. Recipients enter their name before the board loads.">
           <Icon name="share" size={12} />
         </button>
       </div>
@@ -173,11 +173,13 @@ export function BoardTopbar({
               }}>
                 <button className="btn ghost" role="menuitem"
                   onClick={() => { setExportOpen(false); onExportMarkdown(); }}
+                  title="Download a human-readable .md summary"
                   style={{ justifyContent: 'flex-start', height: 32 }}>
                   Markdown (.md)
                 </button>
                 <button className="btn ghost" role="menuitem"
                   onClick={() => { setExportOpen(false); onExportJson(); }}
+                  title="Download the full board as JSON (can be re-imported)"
                   style={{ justifyContent: 'flex-start', height: 32 }}>
                   JSON (.json)
                 </button>

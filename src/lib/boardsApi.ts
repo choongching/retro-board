@@ -9,6 +9,7 @@ export type Board = {
   owner_id: string;
   created_at: string;
   last_active_at: string;
+  started_at: string | null;
 };
 
 export async function createBoard(input: {
@@ -76,6 +77,14 @@ export async function updateBoardLastActive(boardId: string): Promise<void> {
     .update({ last_active_at: new Date().toISOString() })
     .eq('id', boardId);
   if (error) console.error('updateBoardLastActive failed', error);
+}
+
+export async function setBoardStartedAt(boardId: string, startedAt: string): Promise<void> {
+  const { error } = await supabase
+    .from('boards')
+    .update({ started_at: startedAt })
+    .eq('id', boardId);
+  if (error) console.error('setBoardStartedAt failed', error);
 }
 
 type CardRow = {

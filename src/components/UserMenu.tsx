@@ -53,6 +53,7 @@ export function UserMenu({ profile, onProfileChange }: {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
+        title="Account menu"
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           height: 36, padding: '0 8px 0 4px',
@@ -115,6 +116,7 @@ export function UserMenu({ profile, onProfileChange }: {
             className="btn ghost"
             role="menuitem"
             onClick={async () => { setOpen(false); await signOut(); }}
+            title="Sign out of JomRetro on this device"
             style={{ justifyContent: 'flex-start', height: 32, color: '#9c4326' }}>
             Sign out
           </button>

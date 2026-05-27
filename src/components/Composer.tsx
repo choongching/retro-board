@@ -1,57 +1,57 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { tintForName } from '../data';
 import type { ColumnId } from '../data';
 import type { Profile } from '../lib/profile';
+import { NoteEditor } from './NoteEditor';
 
+function placeholderFor(col: ColumnId): string {
+  if (col === 'wind') return 'What’s pushing us forward?';
+  if (col === 'anchor') return 'What’s holding us back?';
+  return 'Type your thought…';
+}
+
+/**
+ * Always-open editor. The parent (Column) decides when to mount/unmount this,
+ * via its own "+" trigger in the header. Submit posts the note and closes.
+ */
 export function Composer({
-  col, profile, onAdd,
+  col, profile, onAdd, onClose,
 }: {
   col: { id: ColumnId; accent?: string };
   profile: Profile;
   onAdd: (col: ColumnId, text: string) => void;
+  onClose: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
-  const ref = useRef<HTMLTextAreaElement | null>(null);
-
-  useEffect(() => { if (open) ref.current?.focus(); }, [open]);
 
   const submit = () => {
-    if (text.trim()) onAdd(col.id, text);
+    const trimmed = text.trim();
+    if (trimmed) onAdd(col.id, trimmed);
     setText('');
-    setOpen(false);
+    onClose();
   };
 
-  if (!open) {
-    return (
-      <button className="add-card-trigger" onClick={() => setOpen(true)}>
-        Add a card
-      </button>
-    );
-  }
+  const cancel = () => {
+    setText('');
+    onClose();
+  };
 
   const tintVar = tintForName(profile.name);
   return (
-    <div className="composer" style={{ ['--sticky-tint' as string]: `var(${tintVar})` } as React.CSSProperties}>
-      <textarea
-        ref={ref}
+    <div
+      className="composer"
+      style={{ ['--sticky-tint' as string]: `var(${tintVar})` } as React.CSSProperties}
+    >
+      <NoteEditor
         value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={col.id === 'wind' ? 'What’s pushing us forward?' :
-                    col.id === 'anchor' ? 'What’s holding us back?' :
-                    'Type your thought…'}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
-          if (e.key === 'Escape') { setText(''); setOpen(false); }
-        }}
+        onChange={setText}
+        onSubmit={submit}
+        onCancel={cancel}
+        placeholder={placeholderFor(col.id)}
+        submitLabel="Drop in"
+        cancelLabel="Cancel"
+        hintVerb="drop"
       />
-      <div className="composer-actions">
-        <span className="tiny muted">↵ to add</span>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn sm ghost" onClick={() => { setText(''); setOpen(false); }}>Cancel</button>
-          <button className="btn sm accent" onClick={submit}>Add</button>
-        </div>
-      </div>
     </div>
   );
 }
