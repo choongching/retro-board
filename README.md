@@ -32,9 +32,10 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 
 ### Live for everyone
 - Real-time card sync across every connected tab
-- Real-time cursor positions
+- Real-time cursor positions, with a **HOST** chip next to the facilitator's cursor and lobby chip so the room knows who's running things
 - Real-time avatar presence
 - Anonymous mode + reveal flow for blind voting
+- **Lobby** before the live board: host sees who's arrived, others see who's here and "Waiting for {host} to start" until the host clicks Start
 - **Icebreaker nudge** for anyone who's been silent in a busy room. After about 3 minutes with at least 3 others present and 5 cards already on the board, a one-time, self-only modal opens with a friendly open-ended prompt. Type a sentence, pick a column, and your answer becomes your first card.
 
 ---
@@ -70,13 +71,22 @@ inside the new board → click the history icon in the topbar
 ```
 The recap is **owner-local**. Only you see the modal; participants stay in the live board with no interruption. Useful for the warmup beat: scan last sprint's action items and themes, then start fresh. The recap doesn't change the new board, and nothing carries over by default.
 
+### Lobby (pre-session waiting state)
+```
+host creates retro → lobby card with "Who's here" list + Start retro
+participants join via invite link → enter their name
+  → land in the same lobby, see the host's name and a waiting pill
+host clicks Start retro → everyone cross-fades into the live board
+```
+Restores the small "ok everyone, let's start" ritual that real-life retros have. Early arrivals stop wondering whether to post or wait, and hosts get visible confirmation of who's in the room before kickoff. Late joiners after Start drop straight into the live board with no special UI. One-way: once started, the board stays live.
+
 ### Icebreaker nudge for silent participants
 ```
 join the board → 3 minutes pass with no card from you
   → AND there are 3+ other participants in the room
   → AND there are 5+ cards on the board already
   → icebreaker modal opens just for you, once
-     "Hey there, do you have any particular notes to add from this sprint?"
+     "Anything from this sprint you want to add?"
   → type a sentence, pick a column, click "Drop it in"
   → your answer becomes your first card, broadcasts to everyone
 ```
@@ -151,6 +161,11 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - ✓ JSON import (start a fresh board from a previous one)
 - ✓ Persistent boards for signed-in creators
 - ✓ "My boards" history with delete
+- ✓ **Lobby**: host-controlled pre-session waiting state with a participant list and Start button
+- ✓ **HOST badge** on cursors and lobby chips so the facilitator is visually identifiable
+- ✓ **Expandable note editor**: auto-grows up to 12 lines inline, then promotes to a full modal editor for long-form notes. Cmd+Enter to submit.
+- ✓ **Per-column scroll** with sticky headers and Add CTA, so context and the action stay visible no matter how long the column gets
+- ✓ **Warm empty states** on every column with an inviting "Drop the first note" CTA
 - ✓ **Recap modal**: owners can pull up a read-only snapshot of any past retro inside the new board to review action items before kicking off
 - ✓ **Icebreaker nudge**: a one-shot, self-only modal that invites silent participants to drop their first card with an open-ended prompt, never visible to others
 - ✓ Copy-invite-link with name-collection guarantee
@@ -172,6 +187,30 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### May 2026
+- **Lobby v1.** Pre-session waiting state gated by `boards.started_at`. Host sees who's arrived + a Start retro button, others see a waiting pill with the host's name. Cross-fades into the live board on Start.
+  - _Why:_ Wen Bin (early user) asked for a multiplayer-game-style lobby. Without it, early arrivals didn't know whether to post or wait, and hosts had no "we're starting" moment.
+  - _UX value:_ Restores the small ritual real-life retros have. Reduces awkward early-arrival ambiguity. Gives the host visible confirmation of the room before kickoff.
+- **HOST badge** on cursors and lobby chips. The host marks themselves in their own presence broadcast so every client renders the badge correctly.
+  - _Why:_ Participants couldn't tell who the facilitator was at a glance, especially in larger rooms.
+  - _UX value:_ Quick visual identification for direction-asking and "@host" mentions.
+- **NoteEditor + expandable composer.** Shared component for create and inline edit. Auto-grows 3 → 12 lines then scrolls; an expand icon promotes the editor into a portal-backed modal (60vh) with content preserved. Cmd/Ctrl+Enter submits, Esc cancels.
+  - _Why:_ Users said they write long-form notes. The old fixed-height composer clipped content behind the footer, and Enter-to-submit accidentally posted half-thoughts.
+  - _UX value:_ Long notes feel comfortable to write and review. Short notes stay fast. Big writing surface available on demand without disrupting flow.
+- **Per-column scroll with sticky header + top-right Add CTA.** Each column is its own scroll context. The composer is a compact "+ Note" button next to the column count, opening an inline editor below the header only when active.
+  - _Why:_ When columns grew long, the title and Add button scrolled out of view, costing context and one extra scroll for every new note.
+  - _UX value:_ Always know which column you're in. Always one click from adding. Composer chrome only present when actively writing.
+- **Inviting empty states.** Every empty column gets a sticky-note glyph, a muted facilitator-voice prompt, and a "Drop the first note" CTA.
+  - _Why:_ Empty columns at the start of a session felt cold and unanchored.
+  - _UX value:_ Encourages first participation, sets the tone, and gives the column a sense of identity even before any notes land.
+- **Vote-based auto-sort removed.** Upvoting no longer reorders cards.
+  - _Why:_ Cards used to jump positions on every vote, which lost reading context and made it hard to track what someone just said.
+  - _UX value:_ Cards stay where they were posted. Vote counts are visible but don't cause reflow.
+- **Modal portal fix.** Modals now render via `createPortal` to `document.body`, escaping the rotated sticky-card transform that was trapping `position: fixed`.
+  - _Why:_ Expanding to edit a sticky's text rendered the modal clipped inside the card's rotation containing block.
+  - _UX value:_ Editors and dialogs always cover the full viewport, regardless of where they were triggered from.
+- **Facilitator-voice copy pass.** Rewrote column hints, format descriptions, icebreaker prompts, empty-state copy, toasts, and tooltips. Em-dash sweep across UI strings and code comments.
+  - _Why:_ "What worked" / "What didn't" / "What we'll do" was functional but bland. Real facilitators ask about energy ("What energized us") and commitment ("What we'll commit to").
+  - _UX value:_ Prompts feel like a thoughtful facilitator is in the room, encouraging deeper reflection instead of checkbox answers.
 - **Icebreaker nudge** for silent participants. A one-shot, self-only modal that asks an open-ended question after 3 minutes of inactivity in a buzzing room (3+ others present, 5+ cards posted), then turns the answer into their first card.
 - **Top-level error boundary.** Any rendering crash now shows a branded fallback page with "Try again" and "Back home" actions instead of a white screen.
 - **Route-level code splitting.** Board, Join, SignIn, and AuthCallback load on demand. Landing visitors get a smaller initial bundle, and the chunk-size warning is gone.
