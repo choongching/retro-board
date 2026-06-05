@@ -195,7 +195,7 @@ A light changelog of notable changes. For everything else, see the [commit histo
 - **Two-step start (arm, then Start).** Choosing a duration never auto-starts the clock. It shows a neutral "armed" state and waits for the host to press Start.
   - _Why:_ Hosts set the timer up while still talking; an auto-start would burn the box before the room is ready.
   - _UX value:_ The facilitator owns the exact moment the room begins, like a referee's whistle. Green is reserved strictly for a live countdown, so the colour itself signals "we have started."
-- **Timer design options gallery** at `/timer-preview`. An interactive, unlinked reference showing every treatment explored (inline band, clock-style pie dial, LCD agenda card, expiration ring pill) and the shipped slim topbar LCD, across all states (idle, armed, running, ending, paused, expired) for both host and participant.
+- **Timer design options gallery** — browse it live at **[jomretro.com/timer-preview](https://jomretro.com/timer-preview)**. An interactive, unlinked reference showing every treatment explored (inline band, clock-style pie dial, LCD agenda card, expiration ring pill) and the shipped slim topbar LCD, across all states (idle, armed, running, ending, paused, expired) for both host and participant.
   - _Why:_ The timer went through several visual directions; one living page documents the decision and the alternatives instead of losing them to chat history.
 
 ### May 2026
