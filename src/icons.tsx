@@ -7,7 +7,9 @@ export type IconName =
   | 'edit' | 'trash'
   | 'eye' | 'eye-off'
   | 'users' | 'key' | 'clock' | 'history'
-  | 'play' | 'pause'
+  | 'play' | 'pause' | 'stop' | 'restart'
+  | 'bell' | 'bell-off'
+  | 'more-vertical' | 'target'
   | 'download' | 'copy' | 'share'
   | 'sparkle' | 'shuffle';
 
@@ -40,8 +42,14 @@ export function Icon({ name, size = 14, color = 'currentColor', strokeWidth = 1.
     case 'key':          return <svg {...props}><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>;
     case 'clock':        return <svg {...props}><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>;
     case 'history':      return <svg {...props}><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>;
-    case 'play':         return <svg {...props}><path d="M5 3l14 9-14 9V3z" fill={color}/></svg>;
-    case 'pause':        return <svg {...props}><rect x="6" y="4" width="4" height="16" fill={color}/><rect x="14" y="4" width="4" height="16" fill={color}/></svg>;
+    case 'play':         return <svg {...props}><path d="M6 4l14 8-14 8z"/></svg>;
+    case 'pause':        return <svg {...props}><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>;
+    case 'stop':         return <svg {...props}><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg>;
+    case 'bell':         return <svg {...props}><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>;
+    case 'bell-off':     return <svg {...props}><path d="M13.73 21a2 2 0 01-3.46 0M18.63 13A17.9 17.9 0 0118 8M6.26 6.26A5.86 5.86 0 006 8c0 7-3 9-3 9h14M18 8a6 6 0 00-9.33-5M1 1l22 22"/></svg>;
+    case 'restart':      return <svg {...props}><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg>;
+    case 'more-vertical':return <svg {...props}><circle cx="12" cy="5" r="1.4" fill={color} stroke="none"/><circle cx="12" cy="12" r="1.4" fill={color} stroke="none"/><circle cx="12" cy="19" r="1.4" fill={color} stroke="none"/></svg>;
+    case 'target':       return <svg {...props}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill={color} stroke="none"/></svg>;
     case 'download':     return <svg {...props}><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>;
     case 'copy':         return <svg {...props}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>;
     case 'share':        return <svg {...props}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>;
