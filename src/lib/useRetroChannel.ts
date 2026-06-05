@@ -3,6 +3,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { Card, ColumnId, FormatId } from '../data';
 import type { Profile } from './profile';
+import { IDLE_TIMER } from './timer';
+import type { Timer } from './timer';
 import {
   deleteCardById,
   insertCard,
@@ -20,6 +22,7 @@ export type RoomState = {
   anonMode: boolean;
   revealed: boolean;
   startedAt: number | null;
+  timer: Timer;
 };
 
 export type User = {
@@ -47,6 +50,7 @@ const EMPTY: RoomState = {
   anonMode: false,
   revealed: true,
   startedAt: null,
+  timer: IDLE_TIMER,
 };
 
 export function useRetroChannel(
@@ -175,6 +179,12 @@ export function useRetroChannel(
     (patch: Partial<RoomState>) => sendPatch({ kind: 'settings', patch }),
     [sendPatch],
   );
+  // Timebox timer: ephemeral like anon/reveal (writePatchThrough ignores it),
+  // so it broadcasts to everyone but is never written to the DB.
+  const setTimer = useCallback(
+    (timer: Timer) => sendPatch({ kind: 'settings', patch: { timer } }),
+    [sendPatch],
+  );
 
   // Cursor broadcast: ephemeral; never re-track() (which accumulates presence entries).
   const sendCursor = useCallback(
@@ -198,6 +208,7 @@ export function useRetroChannel(
     voteCard,
     moveCard,
     updateSettings,
+    setTimer,
     sendCursor,
   };
 }

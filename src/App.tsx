@@ -12,6 +12,7 @@ const Join = lazy(() => import('./screens/Join').then((m) => ({ default: m.Join 
 const Board = lazy(() => import('./screens/Board').then((m) => ({ default: m.Board })));
 const SignIn = lazy(() => import('./screens/SignIn').then((m) => ({ default: m.SignIn })));
 const AuthCallback = lazy(() => import('./screens/AuthCallback').then((m) => ({ default: m.AuthCallback })));
+const TimerPreview = lazy(() => import('./screens/TimerPreview').then((m) => ({ default: m.TimerPreview })));
 
 function RouteFallback() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
               <Route path="/join" element={<Join />} />
               <Route path="/join/:code" element={<Join />} />
               <Route path="/r/:code" element={<Board />} />
+              <Route path="/timer-preview" element={<TimerPreview />} />{/* Timer design options gallery */}
               <Route path="/signin" element={<SignIn />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="*" element={<Navigate to="/" />} />

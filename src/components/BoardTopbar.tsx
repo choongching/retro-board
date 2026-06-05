@@ -3,16 +3,19 @@ import { Icon } from '../icons';
 import { PresenceStack } from './PresenceStack';
 import { ProfilePill } from './ProfilePill';
 import { UserMenu } from './UserMenu';
+import { TimerTopbarLcd } from './TimerTopbarLcd';
 import type { Participant } from './StickyCard';
 import type { Format } from '../data';
 import { useAuth } from '../lib/auth';
 import type { Profile } from '../lib/profile';
+import type { Timer } from '../lib/timer';
 
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
   isOwner, onTitleChange,
   onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onCopyInviteLink, onChangeProfile, onProfileChange,
   onOpenRecap,
+  timer, onTimerChange,
 }: {
   code: string;
   title: string;
@@ -33,6 +36,8 @@ export function BoardTopbar({
   onChangeProfile: () => void;
   onProfileChange: (next: Profile) => void;
   onOpenRecap: () => void;
+  timer: Timer;
+  onTimerChange: (next: Timer) => void;
 }) {
   void fmt;
   const { user } = useAuth();
@@ -138,6 +143,8 @@ export function BoardTopbar({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <TimerTopbarLcd timer={timer} isHost={isOwner} onChange={onTimerChange} />
+
         {isOwner && anonMode && !revealed && (
           <button className="btn sm accent" onClick={onReveal}>
             <Icon name="eye" size={12} /> Reveal

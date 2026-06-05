@@ -108,7 +108,7 @@ function BoardInner({
   const {
     state, users, cursors,
     addCard, editCard, deleteCard, voteCard, moveCard,
-    updateSettings, sendCursor,
+    updateSettings, setTimer, sendCursor,
   } = useRetroChannel(code, profile, initialState, dbBoard?.id, isOwner);
 
   const fmt = FORMATS[state.format];
@@ -266,6 +266,8 @@ function BoardInner({
             onChangeProfile={onChangeProfile}
             onProfileChange={setProfile}
             onOpenRecap={() => setRecapOpen(true)}
+            timer={state.timer}
+            onTimerChange={setTimer}
           />
 
           <BoardSurface

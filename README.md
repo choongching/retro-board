@@ -168,6 +168,7 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - ✓ **Warm empty states** on every column with an inviting "Drop the first note" CTA
 - ✓ **Recap modal**: owners can pull up a read-only snapshot of any past retro inside the new board to review action items before kicking off
 - ✓ **Icebreaker nudge**: a one-shot, self-only modal that invites silent participants to drop their first card with an open-ended prompt, never visible to others
+- ✓ **Session timer**: a host-driven timebox in the topbar (seven-segment readout) with arm-then-Start, duration presets + custom, pause/extend/restart, green-to-red urgency, and chimes. Participants see a live read-only countdown.
 - ✓ Copy-invite-link with name-collection guarantee
 - ✓ Inline form validation everywhere (empty fields, bad email format, ABC-1234 code shape)
 - ✓ DB-backed code lookup before joining — no more landing in phantom rooms
@@ -179,12 +180,23 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - In-column card reorder doesn't persist across reloads (we order by creation time on reload). Cross-column moves do persist.
 - Anonymous-created boards stay ephemeral by design — sign in to host saved retros.
 - Two users voting on the same card at the exact same instant can race; last write wins on the votes array. Rare in practice.
+- The session timer is broadcast-only (not written to the database). It survives late joiners via the same state-sync as the rest of the live board, but resets if the room fully empties, the same ephemeral model as cards.
 
 ---
 
 ## Recently shipped
 
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
+
+### June 2026
+- **Session timer (timebox).** A host-driven countdown lives in the board topbar as a compact seven-segment LCD module: a tinted readout beside its controls, set apart from the other topbar actions. The host picks a duration (5/10/15/20 min or custom); controls cover pause/resume, add time (+1/5/10/15 via a menu), restart, and end. Participants see a read-only countdown.
+  - _Why:_ Retros run long without a shared clock. Facilitators timebox each phase (brainwriting, grouping, discussion) and the whole room needs to feel the same time pressure off one source of truth.
+  - _UX value:_ One glanceable clock for everyone. The readout runs green, shifts to amber at a quarter left, then red under a minute with a soft breathing pulse, paired with a two-tone chime at 30 seconds and at zero. Expiry is soft (time's up, but input stays open) rather than a hard cutoff, so a good discussion isn't guillotined. Sound is per-person and mutable.
+- **Two-step start (arm, then Start).** Choosing a duration never auto-starts the clock. It shows a neutral "armed" state and waits for the host to press Start.
+  - _Why:_ Hosts set the timer up while still talking; an auto-start would burn the box before the room is ready.
+  - _UX value:_ The facilitator owns the exact moment the room begins, like a referee's whistle. Green is reserved strictly for a live countdown, so the colour itself signals "we have started."
+- **Timer design options gallery** at `/timer-preview`. An interactive, unlinked reference showing every treatment explored (inline band, clock-style pie dial, LCD agenda card, expiration ring pill) and the shipped slim topbar LCD, across all states (idle, armed, running, ending, paused, expired) for both host and participant.
+  - _Why:_ The timer went through several visual directions; one living page documents the decision and the alternatives instead of losing them to chat history.
 
 ### May 2026
 - **Lobby v1.** Pre-session waiting state gated by `boards.started_at`. Host sees who's arrived + a Start retro button, others see a waiting pill with the host's name. Cross-fades into the live board on Start.
