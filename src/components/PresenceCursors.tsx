@@ -1,3 +1,4 @@
+import { CursorArrow } from './CursorArrow';
 import type { User } from '../lib/useRetroChannel';
 
 export function PresenceCursors({
@@ -16,10 +17,7 @@ export function PresenceCursors({
           const isHost = u.isHost === true;
           return (
             <div key={u.id} className="live-cursor" style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}>
-              <svg width="18" height="18" viewBox="0 0 18 18">
-                <path d="M2 2 L2 14 L6 11 L8.5 16 L10.5 15 L8 10 L13 10 Z"
-                      fill={u.color} stroke="#fff" strokeWidth="1.2" strokeLinejoin="round"/>
-              </svg>
+              <CursorArrow color={u.color} size={18} />
               <div className="label" style={{ background: u.color }}>
                 {u.name.split(' ')[0]}
                 {isHost && <span className="label-host" aria-label="Host">host</span>}

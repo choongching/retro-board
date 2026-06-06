@@ -51,7 +51,7 @@ export default function App() {
                 background: 'var(--color-text)',
                 color: 'var(--color-bg)',
                 border: 'none',
-                borderRadius: '10px',
+                borderRadius: 'var(--radius)',
                 fontSize: '13px',
                 padding: '10px 14px',
                 boxShadow: 'var(--shadow-lg)',

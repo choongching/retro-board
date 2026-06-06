@@ -124,7 +124,7 @@ export function TimerTopbarLcd({
   const lcd = (
     <div className={`timer-mini-lcd timer-lcd--${level}`} data-paused={paused ? '' : undefined}>
       <span className="timer-mini-clock" aria-hidden>
-        <Icon name="clock" size={13} strokeWidth={1.9} />
+        <Icon name="clock" size={13} />
       </span>
       <span
         className="timer-mini-digits"
@@ -187,7 +187,7 @@ export function TimerTopbarLcd({
                   {EXTEND_MIN.map((m) => (
                     <button
                       key={m}
-                      className="timer-ext-item"
+                      className="menu-item"
                       role="menuitem"
                       title={`Add ${m} ${m === 1 ? 'minute' : 'minutes'}`}
                       onClick={() => extendBy(m, Date.now())}

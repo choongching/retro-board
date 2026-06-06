@@ -16,31 +16,7 @@ export type SailboatZoneDef = {
 };
 
 function ZoneGlyph({ kind, color }: { kind: SailboatZoneDef['glyph']; color: string }) {
-  const props = {
-    width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none',
-    stroke: color, strokeWidth: 1.6, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const,
-    style: { flexShrink: 0, marginTop: 2 },
-  };
-  if (kind === 'wind') return (
-    <svg {...props}><path d="M3 8h12a3 3 0 100-6"/><path d="M3 14h16a3 3 0 110 6"/><path d="M3 11h7"/></svg>
-  );
-  if (kind === 'anchor') return (
-    <svg {...props}><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="22"/><path d="M5 16a7 7 0 0014 0"/><line x1="8" y1="10" x2="16" y2="10"/></svg>
-  );
-  if (kind === 'shark') return (
-    <svg {...props}>
-      <path d="M4 17 Q 10 5 14 17 Z"/>
-      <path d="M2 20h20" strokeDasharray="2 2"/>
-    </svg>
-  );
-  if (kind === 'destination') return (
-    <svg {...props}>
-      <path d="M6 20 Q 12 16 18 20"/>
-      <line x1="12" y1="20" x2="12" y2="6"/>
-      <path d="M12 6 L20 9 L12 12 Z"/>
-    </svg>
-  );
-  return null;
+  return <Icon name={kind} size={22} color={color} style={{ marginTop: 2 }} />;
 }
 
 export function SailboatZone({

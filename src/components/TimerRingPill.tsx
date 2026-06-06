@@ -157,7 +157,7 @@ export function TimerRingPill({
             {extendOpen && (
               <div className="timer-ext-menu" role="menu">
                 {EXTEND_MIN.map((m) => (
-                  <button key={m} className="timer-ext-item" role="menuitem" onClick={() => extendBy(m, Date.now())}>
+                  <button key={m} className="menu-item" role="menuitem" onClick={() => extendBy(m, Date.now())}>
                     +{extendLabel(m)}
                   </button>
                 ))}

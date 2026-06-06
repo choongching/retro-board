@@ -62,7 +62,7 @@ export function TimerDial({
         <div className="timer-dial-face">
           {idle ? (
             <span className="timer-dial-glyph">
-              <Icon name="clock" size={Math.round(size * 0.26)} strokeWidth={1.6} />
+              <Icon name="clock" size={Math.round(size * 0.26)} />
             </span>
           ) : (
             <span className="timer-dial-time" style={{ fontSize: Math.round(size * 0.2) }}>

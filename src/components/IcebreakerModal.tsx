@@ -82,7 +82,7 @@ export function IcebreakerModal({
           color: 'var(--color-text)',
           background: 'var(--color-surface-2)',
           border: '1px solid var(--color-border)',
-          borderRadius: 10,
+          borderRadius: 'var(--radius)',
           outline: 'none',
         }}
       />

@@ -1,4 +1,10 @@
-// icons.tsx: minimal stroke icons
+// icons.tsx: the single source of truth for all line icons in the app.
+// Every icon is a 24x24, currentColor, stroke-1.6, round-cap glyph so the whole
+// set reads as one family. Render via <Icon name="..." />; do not hand-inline
+// SVGs elsewhere. (Multi-colour brand illustrations like FormatGlyph and the
+// sailboat scene are deliberately separate; those are not icons.)
+
+import type { CSSProperties } from 'react';
 
 export type IconName =
   | 'plus' | 'x' | 'check'
@@ -11,20 +17,27 @@ export type IconName =
   | 'bell' | 'bell-off'
   | 'more-vertical' | 'target'
   | 'download' | 'copy' | 'share'
-  | 'sparkle' | 'shuffle';
+  | 'sparkle' | 'shuffle'
+  | 'maximize' | 'sticky-note'
+  | 'wind' | 'anchor' | 'shark' | 'destination'
+  | 'log-out';
 
 export type IconProps = {
   name: IconName | string;
   size?: number;
   color?: string;
   strokeWidth?: number;
+  className?: string;
+  style?: CSSProperties;
 };
 
-export function Icon({ name, size = 14, color = 'currentColor', strokeWidth = 1.6 }: IconProps) {
+export function Icon({ name, size = 14, color = 'currentColor', strokeWidth = 1.6, className, style }: IconProps) {
   const props = {
     width: size, height: size, viewBox: '0 0 24 24', fill: 'none',
     stroke: color, strokeWidth, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const,
-    style: { display: 'inline-block', flexShrink: 0 },
+    className,
+    style: { display: 'inline-block', flexShrink: 0, ...style },
+    'aria-hidden': true,
   };
   switch (name) {
     case 'plus':         return <svg {...props}><path d="M12 5v14M5 12h14"/></svg>;
@@ -55,6 +68,13 @@ export function Icon({ name, size = 14, color = 'currentColor', strokeWidth = 1.
     case 'share':        return <svg {...props}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>;
     case 'sparkle':      return <svg {...props}><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z"/></svg>;
     case 'shuffle':      return <svg {...props}><path d="M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>;
+    case 'maximize':     return <svg {...props}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>;
+    case 'sticky-note':  return <svg {...props}><path d="M5 4h11l4 4v12H5z"/><path d="M16 4v4h4"/><path d="M8 12h8M8 16h5" opacity="0.5"/></svg>;
+    case 'wind':         return <svg {...props}><path d="M3 8h12a3 3 0 100-6"/><path d="M3 14h16a3 3 0 110 6"/><path d="M3 11h7"/></svg>;
+    case 'anchor':       return <svg {...props}><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="22"/><path d="M5 16a7 7 0 0014 0"/><line x1="8" y1="10" x2="16" y2="10"/></svg>;
+    case 'shark':        return <svg {...props}><path d="M4 17Q10 5 14 17Z"/><path d="M2 20h20" strokeDasharray="2 2"/></svg>;
+    case 'destination':  return <svg {...props}><path d="M6 20Q12 16 18 20"/><line x1="12" y1="20" x2="12" y2="6"/><path d="M12 6L20 9 12 12Z"/></svg>;
+    case 'log-out':      return <svg {...props}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>;
     default:             return <svg {...props}><circle cx="12" cy="12" r="9"/></svg>;
   }
 }

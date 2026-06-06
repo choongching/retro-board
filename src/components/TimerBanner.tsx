@@ -62,7 +62,7 @@ export function TimerBanner({
         >
           <div className="timer-band-inner">
             <span className="timer-clock" aria-hidden>
-              <Icon name={paused ? 'pause' : 'clock'} size={16} strokeWidth={1.8} />
+              <Icon name={paused ? 'pause' : 'clock'} size={16} />
             </span>
 
             {timer.status === 'idle' ? (

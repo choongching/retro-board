@@ -60,7 +60,7 @@ export function Modal({
             transition={{ duration: 0.2, ease: EASE }}
             style={{
               background: 'var(--color-surface)',
-              borderRadius: 14,
+              borderRadius: 'var(--radius-lg)',
               boxShadow: 'var(--shadow-lg)',
               width,
               position: 'relative',

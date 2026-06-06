@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Icon } from '../icons';
+import { CursorArrow } from '../components/CursorArrow';
 import { RetroWordmark } from '../components/RetroWordmark';
 import { useAuth } from '../lib/auth';
 import { getBoardByCode } from '../lib/boardsApi';
@@ -152,7 +153,7 @@ function SignInPanel() {
                 aria-invalid={!!joinNameError}
               />
             </div>
-            {joinNameError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{joinNameError}</div>}
+            {joinNameError && <div className="tiny" style={{ color: 'var(--color-danger)', marginTop: 4 }}>{joinNameError}</div>}
           </div>
           <div className="field-group">
             <label className="field-label" htmlFor="home-join-code">Room code</label>
@@ -169,12 +170,11 @@ function SignInPanel() {
                 aria-invalid={!!joinCodeError}
               />
             </div>
-            {joinCodeError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{joinCodeError}</div>}
+            {joinCodeError && <div className="tiny" style={{ color: 'var(--color-danger)', marginTop: 4 }}>{joinCodeError}</div>}
           </div>
           <button
             type="submit"
             className="btn accent lg"
-            style={{ justifyContent: 'center' }}
             disabled={joinSubmitting}
           >
             {joinSubmitting ? 'Looking up…' : "Let's go"}
@@ -237,13 +237,12 @@ function SignInPanel() {
                     aria-invalid={!!hostEmailError}
                   />
                 </div>
-                {hostEmailError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{hostEmailError}</div>}
+                {hostEmailError && <div className="tiny" style={{ color: 'var(--color-danger)', marginTop: 4 }}>{hostEmailError}</div>}
               </div>
-              {hostError && <div className="tiny" style={{ color: '#9c4326' }}>{hostError}</div>}
+              {hostError && <div className="tiny" style={{ color: 'var(--color-danger)' }}>{hostError}</div>}
               <button
                 type="submit"
                 className="btn accent lg"
-                style={{ justifyContent: 'center' }}
                 disabled={hostSubmitting}
               >
                 {hostSubmitting ? 'Sending…' : 'Send magic link'}
@@ -422,15 +421,5 @@ function Cursor({ persona, dismissed }: { persona: Persona; dismissed: boolean }
 }
 
 function CursorPointer({ color }: { color: string }) {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" style={{ display: 'block' }}>
-      <path
-        d="M3.5 2.5 L3.5 16.5 L7.4 12.6 L9.7 17.6 L11.4 16.8 L9.1 11.8 L13.5 11.8 Z"
-        fill={color}
-        stroke="#ffffff"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <CursorArrow color={color} size={20} />;
 }
