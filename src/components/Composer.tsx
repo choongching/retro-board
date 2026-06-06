@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { tintForName } from '../data';
 import type { ColumnId } from '../data';
-import type { Profile } from '../lib/profile';
 import { NoteEditor } from './NoteEditor';
 
 function placeholderFor(col: ColumnId): string {
@@ -15,10 +13,9 @@ function placeholderFor(col: ColumnId): string {
  * via its own "+" trigger in the header. Submit posts the note and closes.
  */
 export function Composer({
-  col, profile, onAdd, onClose,
+  col, onAdd, onClose,
 }: {
   col: { id: ColumnId; accent?: string };
-  profile: Profile;
   onAdd: (col: ColumnId, text: string) => void;
   onClose: () => void;
 }) {
@@ -36,12 +33,8 @@ export function Composer({
     onClose();
   };
 
-  const tintVar = tintForName(profile.name);
   return (
-    <div
-      className="composer"
-      style={{ ['--sticky-tint' as string]: `var(${tintVar})` } as React.CSSProperties}
-    >
+    <div className="composer">
       <NoteEditor
         value={text}
         onChange={setText}

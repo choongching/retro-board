@@ -189,6 +189,12 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **Neutral draft state for new cards.** The in-focus card composer no longer borrows the author's warm paper tint while you're typing. A draft stays muted (neutral surface + dashed border) and only takes its author color once it's dropped in.
+  - _Why:_ A tinted draft looked identical to a posted note, so it wasn't obvious the thought hadn't been committed yet.
+  - _UX value:_ The unconfirmed card reads as clearly "not posted," distinct from the confirmed notes around it.
+- **Even, legible sticky author avatar.** Added a proper `.avatar.xs` (18px) design-system size for the tiny author chip on sticky notes, replacing a one-off inline-shrunk `.sm`. Two initials now sit even and centered, with a neutral inset ring instead of a bg-colored border that clashed with the paper tint.
+  - _Why:_ At 16px the two-letter initials were cramped and off-center, and the cool border ring clashed on warm stickies.
+  - _UX value:_ Author initials read cleanly on every tint, and the size is now a reusable primitive (documented in the styleguide) rather than a hand-tuned override.
 - **One share action in the board topbar.** Merged the two adjacent controls (a room-code pill that copied the code, and a separate share icon that copied the invite link) into a single pill. The room code stays visible as the room's identity, with the share glyph inside it, and clicking anywhere on it now copies the invite link.
   - _Why:_ Two side-by-side copy actions made people stop and decide which to use, and the bare room code is rarely what you want to share, the join link is.
   - _UX value:_ One control, one outcome. Less to parse, and the action that matters (invite a teammate) is the default.
