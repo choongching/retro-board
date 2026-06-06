@@ -189,6 +189,11 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **Design-system consistency pass.** Pulled the whole UI onto shared, reusable primitives so components stop drifting: one icon set (`icons.tsx`), one tokenised radius scale (`--radius-sm/--radius/--radius-lg` = 6/8/12), one button system (`.btn` with `primary/accent/danger/ghost` variants, `sm/lg` sizes, `icon`/`block` shapes, and built-in `hover/active/focus-visible/disabled` states), one dropdown-row system (`.menu-item`), and one card surface (`.surface`). Added a `--color-danger` token shared by destructive buttons and inline errors.
+  - _Why:_ Buttons and actions had quietly diverged in radius, height, and styling (stacked lobby CTAs at different heights, rounded-rect confirm buttons amongst pill buttons, stray inline SVGs and a duplicated cursor shape). Each new feature was reinventing the same primitives slightly differently.
+  - _UX value:_ Every button, menu, icon, and card now reads as one family, and new work composes existing primitives instead of hand-rolling one-offs.
+- **Account menu redesign.** A compact, professional popover: uppercase labels, a tidy display-name input, a log-out icon, an entrance animation, and a two-step **sign-out confirmation** so it can't happen by accident.
+- **Host lobby editing.** Hosts can rename the retro inline from the lobby (hover-reveal pencil, Enter/Esc) and get a **Copy room link** action right under Start retro, no need to reach for the topbar.
 - **Session timer (timebox).** A host-driven countdown lives in the board topbar as a compact seven-segment LCD module: a tinted readout beside its controls, set apart from the other topbar actions. The host picks a duration (5/10/15/20 min or custom); controls cover pause/resume, add time (+1/5/10/15 via a menu), restart, and end. Participants see a read-only countdown.
   - _Why:_ Retros run long without a shared clock. Facilitators timebox each phase (brainwriting, grouping, discussion) and the whole room needs to feel the same time pressure off one source of truth.
   - _UX value:_ One glanceable clock for everyone. The readout runs green, shifts to amber at a quarter left, then red under a minute with a soft breathing pulse, paired with a two-tone chime at 30 seconds and at zero. Expiry is soft (time's up, but input stays open) rather than a hard cutoff, so a good discussion isn't guillotined. Sound is per-person and mutable.
@@ -316,6 +321,32 @@ email-templates/
   magic-link.html        # Supabase magic-link template, source of truth
   magic-link-preview.html # local preview with a sample URL filled in
 ```
+
+## Design system
+
+The UI composes from a small set of reusable primitives. Prefer these over one-off styles; don't hand-inline an SVG or hand-roll a button.
+
+**Icons** — `src/icons.tsx` is the single source. Every glyph is a 24×24, `currentColor`, stroke-1.6, round-cap outline so the set reads as one family. Render with `<Icon name="..." size={…} />`. Multi-colour brand illustrations (`FormatGlyph`, the sailboat scene) and the `CursorArrow` shape are deliberately separate — they are not icons.
+
+**Radius** — a tokenised scale: `--radius-sm` (6px, chips and menu rows), `--radius` (8px, inputs and small surfaces), `--radius-lg` (12px, cards, popovers, modals), `--radius-pill` (999px, buttons). Don't hardcode radii.
+
+**Buttons** — one system, `.btn`:
+
+```
+Variants:  (default surface) · .primary · .accent · .danger · .ghost
+Sizes:     .sm (26px) · default (30px) · .lg (42px)
+Shapes:    pill · .icon (square → circle)
+Layout:    .block (full width)
+States:    :hover · :active · :focus-visible · :disabled   (built in)
+```
+
+Buttons are pill-shaped; never give a button a rectangular radius. Destructive actions use `.danger` (the `--color-danger` token, shared with inline error text).
+
+**Menu items** — dropdown/popover rows use `.menu-item` (full-width, left-aligned, `radius-sm`), optionally `.danger`. These are list rows, not buttons.
+
+**Cards / popovers** — use `.surface` (border + `radius-lg` + `--shadow-sm`). Layout-only classes (e.g. `.lobby-card`) sit on top of it; they never re-declare the surface treatment.
+
+**Text links** — inline link-style actions use `.quiet-link`.
 
 ## Toast notifications
 
