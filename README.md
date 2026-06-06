@@ -189,9 +189,9 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
-- **Design system styleguide page.** A single-page, self-contained reference at `styleguide.html` documenting the whole visual language: color tokens (surfaces, text, brand, danger, the 8 sticky tints), the Inter Tight / Chivo Mono type scale, spacing, radius, and elevation, plus live specimens of every component (buttons, inputs, menu items, avatars, surfaces, sticky notes, keys). It links the real `src/styles.css`, so every swatch and specimen renders from production tokens and can never drift.
+- **Design system styleguide page** — browse it live at **[jomretro.com/styleguide.html](https://jomretro.com/styleguide.html)**. A single-page, self-contained reference documenting the whole visual language: color tokens (surfaces, text, brand, danger, the 8 sticky tints), the Inter Tight / Chivo Mono type scale, spacing, radius, and elevation, plus live specimens of every component (buttons, inputs, menu items, avatars, surfaces, sticky notes, keys). It's a second Vite entry that links the real `src/styles.css`, so Vite bundles the production stylesheet into it and every swatch and specimen renders from production tokens, never drifting.
   - _Why:_ The system had grown a full primitive vocabulary with nowhere to see it whole. New work needs one canonical place to check what already exists before hand-rolling a one-off.
-  - _UX value:_ Open it in a browser to browse the system the way other teams browse Polaris or Primer, with a sticky section nav and titled foundations-then-components layout.
+  - _UX value:_ Browse the system the way other teams browse Polaris or Primer, with a sticky section nav and a titled foundations-then-components layout.
 - **Design-system consistency pass.** Pulled the whole UI onto shared, reusable primitives so components stop drifting: one icon set (`icons.tsx`), one tokenised radius scale (`--radius-sm/--radius/--radius-lg` = 6/8/12), one button system (`.btn` with `primary/accent/danger/ghost` variants, `sm/lg` sizes, `icon`/`block` shapes, and built-in `hover/active/focus-visible/disabled` states), one dropdown-row system (`.menu-item`), and one card surface (`.surface`). Added a `--color-danger` token shared by destructive buttons and inline errors.
   - _Why:_ Buttons and actions had quietly diverged in radius, height, and styling (stacked lobby CTAs at different heights, rounded-rect confirm buttons amongst pill buttons, stray inline SVGs and a duplicated cursor shape). Each new feature was reinventing the same primitives slightly differently.
   - _UX value:_ Every button, menu, icon, and card now reads as one family, and new work composes existing primitives instead of hand-rolling one-offs.
@@ -329,7 +329,7 @@ email-templates/
 
 The UI composes from a small set of reusable primitives. Prefer these over one-off styles; don't hand-inline an SVG or hand-roll a button.
 
-A live, browsable reference of the whole system (tokens, type scale, and every component) lives in **`styleguide.html`** — open it in a browser. It links `src/styles.css` directly, so it always reflects the current production styles.
+A live, browsable reference of the whole system (tokens, type scale, and every component) is published at **[jomretro.com/styleguide.html](https://jomretro.com/styleguide.html)** (source: `styleguide.html`, a second Vite entry). It links `src/styles.css` directly, so it always reflects the current production styles.
 
 **Icons** — `src/icons.tsx` is the single source. Every glyph is a 24×24, `currentColor`, stroke-1.6, round-cap outline so the set reads as one family. Render with `<Icon name="..." size={…} />`. Multi-colour brand illustrations (`FormatGlyph`, the sailboat scene) and the `CursorArrow` shape are deliberately separate — they are not icons.
 
