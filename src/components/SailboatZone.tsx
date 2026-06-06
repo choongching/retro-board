@@ -109,7 +109,6 @@ export function SailboatZone({
         {composerOpen && (
           <Composer
             col={{ id: zoneId, accent: zone.accent }}
-            profile={profile}
             onAdd={onAdd}
             onClose={() => setComposerOpen(false)}
           />

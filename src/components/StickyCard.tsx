@@ -111,10 +111,7 @@ export function StickyCard({
         <div className="sticky-author">
           {showAuthor ? (
             <>
-              <div className="avatar sm" style={{
-                background: authorColor, width: 16, height: 16, fontSize: 8.5,
-                borderWidth: 1.5,
-              }}>
+              <div className="avatar xs" style={{ background: authorColor }}>
                 {initials(authorName)}
               </div>
               <span>{authorName}{isMine ? ' (you)' : ''}</span>

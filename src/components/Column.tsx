@@ -83,7 +83,6 @@ export function Column({
         }}>
           <Composer
             col={col}
-            profile={profile}
             onAdd={onAdd}
             onClose={() => setComposerOpen(false)}
           />
