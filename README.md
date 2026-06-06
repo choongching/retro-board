@@ -142,12 +142,13 @@ Boards are share-link-trusted: anyone with the code can read, post, vote, edit t
 | Rename the board (inline title edit) | ✅ | — |
 | Toggle anonymous mode | ✅ | — |
 | Reveal cards (when anon mode is on) | ✅ | — |
+| Set / control the session timer | ✅ | — |
 | Export the retro (.md / .json) | ✅ | — |
 | Back arrow → "My boards" | ✅ | — |
 | Recap a previous session | ✅ | — |
 | Delete the board | ✅ | — |
 
-The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (anon toggle, reveal, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner.
+The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (anon toggle, reveal, timer, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner. The timer is host-controlled but shared: participants see a read-only countdown while it's running.
 
 ---
 
