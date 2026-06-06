@@ -164,11 +164,6 @@ function BoardInner({
     updateSettings({ title: trimmed });
   }, [updateSettings, state.title]);
 
-  const handleCopyCode = useCallback(() => {
-    navigator.clipboard?.writeText(code).catch(() => {});
-    showToast('Room code copied');
-  }, [code, showToast]);
-
   const handleCopyInviteLink = useCallback(() => {
     const url = `${window.location.origin}/join/${code}`;
     navigator.clipboard?.writeText(url).catch(() => {});
@@ -262,7 +257,6 @@ function BoardInner({
             onExportMarkdown={exportMarkdown}
             onExportJson={exportJsonHandler}
             onLeave={onLeave}
-            onCopyCode={handleCopyCode}
             onCopyInviteLink={handleCopyInviteLink}
             onChangeProfile={onChangeProfile}
             onProfileChange={setProfile}

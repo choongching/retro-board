@@ -189,6 +189,9 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **One share action in the board topbar.** Merged the two adjacent controls (a room-code pill that copied the code, and a separate share icon that copied the invite link) into a single pill. The room code stays visible as the room's identity, with the share glyph inside it, and clicking anywhere on it now copies the invite link.
+  - _Why:_ Two side-by-side copy actions made people stop and decide which to use, and the bare room code is rarely what you want to share, the join link is.
+  - _UX value:_ One control, one outcome. Less to parse, and the action that matters (invite a teammate) is the default.
 - **Design system styleguide page** — browse it live at **[jomretro.com/styleguide.html](https://jomretro.com/styleguide.html)**. A single-page, self-contained reference documenting the whole visual language: color tokens (surfaces, text, brand, danger, the 8 sticky tints), the Inter Tight / Chivo Mono type scale, spacing, radius, and elevation, plus live specimens of every component (buttons, inputs, menu items, avatars, surfaces, sticky notes, keys). It's a second Vite entry that links the real `src/styles.css`, so Vite bundles the production stylesheet into it and every swatch and specimen renders from production tokens, never drifting.
   - _Why:_ The system had grown a full primitive vocabulary with nowhere to see it whole. New work needs one canonical place to check what already exists before hand-rolling a one-off.
   - _UX value:_ Browse the system the way other teams browse Polaris or Primer, with a sticky section nav and a titled foundations-then-components layout.

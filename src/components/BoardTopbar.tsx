@@ -13,7 +13,7 @@ import type { Timer } from '../lib/timer';
 export function BoardTopbar({
   code, title, fmt, profile, participants, anonMode, revealed,
   isOwner, onTitleChange,
-  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyCode, onCopyInviteLink, onChangeProfile, onProfileChange,
+  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyInviteLink, onChangeProfile, onProfileChange,
   onOpenRecap,
   timer, onTimerChange,
 }: {
@@ -31,7 +31,6 @@ export function BoardTopbar({
   onExportMarkdown: () => void;
   onExportJson: () => void;
   onLeave: () => void;
-  onCopyCode: () => void;
   onCopyInviteLink: () => void;
   onChangeProfile: () => void;
   onProfileChange: (next: Profile) => void;
@@ -133,12 +132,11 @@ export function BoardTopbar({
             )}
           </div>
         )}
-        <button className="btn sm" onClick={onCopyCode} title="Copy room code"
-          style={{ marginLeft: 4, background: 'var(--color-surface-2)', borderColor: 'transparent' }}>
+        <button className="btn sm" onClick={onCopyInviteLink}
+          title="Copy invite link. Recipients enter their name before the board loads."
+          style={{ marginLeft: 4, gap: 8, background: 'var(--color-surface-2)', borderColor: 'transparent' }}>
           <span className="mono" style={{ letterSpacing: '0.06em', color: 'var(--color-text-2)' }}>{code}</span>
-        </button>
-        <button className="btn icon sm" onClick={onCopyInviteLink} title="Copy invite link. Recipients enter their name before the board loads.">
-          <Icon name="share" size={12} />
+          <Icon name="share" size={12} color="var(--color-text-muted)" />
         </button>
       </div>
 
