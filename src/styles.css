@@ -24,6 +24,11 @@
   --color-brand-subtle:   #eef3ff;
   --color-brand-line:     color-mix(in oklch, var(--color-brand) 32%, var(--color-bg));
 
+  /* Danger (destructive actions) */
+  --color-danger:         #c43d2a;
+  --color-danger-strong:  #a8331f;
+  --color-danger-ink:     #ffffff;
+
   /* Sticky tints — paper feel preserved across theme; per-author identity */
   --t-1: oklch(95% 0.025 70);    /* warm cream */
   --t-2: oklch(94% 0.028 35);    /* peach */
@@ -34,8 +39,9 @@
   --t-7: oklch(95% 0.025 115);   /* soft lime */
   --t-8: oklch(94% 0.018 60);    /* sand */
 
-  --radius: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 6px;   /* chips, menu items, code tags */
+  --radius: 8px;      /* inputs, buttons, small surfaces */
+  --radius-lg: 12px;  /* popovers, modals, cards */
   --radius-pill: 999px;
 
   /* Shadows (cool blue tint) */
@@ -66,37 +72,75 @@ h1, h2, h3 {
 button { font: inherit; color: inherit; }
 input, textarea { font: inherit; color: inherit; }
 
-/* ── Buttons ─────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────────────
+   The single, reusable button system. Every clickable action uses
+   `.btn` plus modifiers — never a one-off button style.
+     Variants:  (default surface) · .primary · .accent · .danger · .ghost
+     Sizes:     .sm (26px) · (default 30px) · .lg (42px)
+     Shapes:    pill by default · .icon (square → circle)
+     Layout:    .block (full width)
+     States:    :hover · :active · :focus-visible · :disabled  (built in)
+   Dropdown list rows are NOT buttons; they use .menu-item (radius-sm). */
 .btn {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   height: 30px; padding: 0 12px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   color: var(--color-text);
   cursor: pointer;
-  transition: background .12s, border-color .12s, transform .06s;
+  transition: background .12s, border-color .12s, color .12s, transform .06s;
   white-space: nowrap;
   font-size: 13.5px;
 }
 .btn:hover { background: var(--color-surface-2); border-color: var(--color-border-strong); }
 .btn:active { transform: translateY(0.5px); }
+.btn:focus-visible { outline: 2px solid var(--color-brand); outline-offset: 2px; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.btn:disabled:hover { filter: none; transform: none; }
 .btn.primary {
   background: var(--color-text); color: var(--color-bg);
   border-color: var(--color-text);
 }
-.btn.primary:hover { background: color-mix(in oklch, var(--color-text) 88%, var(--color-brand)); }
+.btn.primary:hover { background: color-mix(in oklch, var(--color-text) 88%, var(--color-brand)); border-color: var(--color-text); }
 .btn.accent {
   background: var(--color-brand); color: var(--color-brand-ink);
   border-color: var(--color-brand);
   font-weight: 600;
 }
 .btn.accent:hover { filter: brightness(0.96); }
+.btn.danger {
+  background: var(--color-danger); color: var(--color-danger-ink);
+  border-color: var(--color-danger);
+  font-weight: 600;
+}
+.btn.danger:hover { background: var(--color-danger-strong); border-color: var(--color-danger-strong); }
 .btn.ghost { background: transparent; border-color: transparent; }
-.btn.ghost:hover { background: var(--color-surface-2); }
-.btn.icon { width: 30px; padding: 0; justify-content: center; }
+.btn.ghost:hover { background: var(--color-surface-2); border-color: transparent; }
+.btn.ghost.danger { color: var(--color-danger); background: transparent; border-color: transparent; }
+.btn.ghost.danger:hover { background: color-mix(in oklch, var(--color-danger) 9%, var(--color-surface)); }
+.btn.icon { width: 30px; padding: 0; }
 .btn.sm { height: 26px; padding: 0 10px; font-size: 12.5px; }
-.btn.lg { height: 42px; padding: 0 18px; font-size: 15.5px; border-radius: var(--radius-pill); }
+.btn.sm.icon { width: 26px; padding: 0; }
+.btn.lg { height: 42px; padding: 0 18px; font-size: 15.5px; }
+.btn.block { width: 100%; }
+
+/* ── Menu items ──────────────────────────────────────────────────
+   Reusable row for dropdown/popover menus (export, extend, account).
+   Distinct from .btn: full-width, left-aligned, tight radius. */
+.menu-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  height: 32px; padding: 0 10px;
+  background: transparent; border: 0; cursor: pointer;
+  border-radius: var(--radius-sm);
+  font: inherit; font-size: 13px; color: var(--color-text);
+  text-align: left; white-space: nowrap;
+  transition: background .12s;
+}
+.menu-item:hover { background: var(--color-surface-2); }
+.menu-item:focus-visible { outline: 2px solid var(--color-brand); outline-offset: -2px; }
+.menu-item.danger { color: var(--color-danger); }
+.menu-item.danger:hover { background: color-mix(in oklch, var(--color-danger) 9%, var(--color-surface)); }
 
 /* ── Inputs ──────────────────────────────────────────── */
 .input {
@@ -175,7 +219,7 @@ input, textarea { font: inherit; color: inherit; }
 .sticky {
   position: relative;
   background: var(--sticky-tint, var(--t-1));
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 10px 12px 8px;
   font-size: 15px;
   line-height: 1.5;
@@ -244,7 +288,7 @@ input, textarea { font: inherit; color: inherit; }
   pointer-events: none;
   text-transform: uppercase;
   background: color-mix(in oklch, var(--sticky-tint) 55%, transparent);
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 /* ── Add-card composer (outer chrome only; input lives in .note-editor) ── */
@@ -252,7 +296,7 @@ input, textarea { font: inherit; color: inherit; }
   padding: 10px;
   background: color-mix(in oklch, var(--sticky-tint, var(--t-1)) 55%, var(--color-bg));
   border: 1px dashed color-mix(in oklch, var(--sticky-tint, var(--t-1)) 35%, var(--color-text-subtle));
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 /* ── Empty column state ───────────────────────────────── */
@@ -310,7 +354,7 @@ input, textarea { font: inherit; color: inherit; }
   height: 28px;
   display: inline-flex; align-items: center; gap: 4px;
   padding: 0 10px 0 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-2);
   color: var(--color-text-2);
   border: 1px solid var(--color-border);
@@ -361,7 +405,7 @@ input, textarea { font: inherit; color: inherit; }
   display: inline-flex; align-items: center; justify-content: center;
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   cursor: pointer;
   transition: background .12s, color .12s;
@@ -386,7 +430,7 @@ input, textarea { font: inherit; color: inherit; }
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   outline: none;
   transition: border-color .12s, box-shadow .12s;
 }
@@ -446,7 +490,7 @@ input, textarea { font: inherit; color: inherit; }
   position: fixed; bottom: 18px; left: 50%;
   transform: translateX(-50%);
   background: var(--color-text); color: var(--color-bg);
-  padding: 9px 14px; border-radius: 8px;
+  padding: 9px 14px; border-radius: var(--radius);
   font-size: 13px;
   box-shadow: var(--shadow-lg);
   z-index: 1000;
@@ -496,7 +540,7 @@ input, textarea { font: inherit; color: inherit; }
 /* Card */
 .join-screen .join-card {
   display: flex; flex-direction: column; gap: 18px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
 }
 
 .field-group { display: flex; flex-direction: column; }
@@ -521,7 +565,7 @@ input, textarea { font: inherit; color: inherit; }
   position: relative;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   transition: border-color .14s, box-shadow .14s;
 }
 .field-frame:focus-within {
@@ -552,7 +596,7 @@ input, textarea { font: inherit; color: inherit; }
   padding: 8px 6px 8px 8px;
   background: var(--color-surface-2);
   border: 1px solid var(--color-divider);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 .avatar-preview {
   width: 44px; height: 44px;
@@ -592,7 +636,7 @@ input, textarea { font: inherit; color: inherit; }
   padding: 8px 12px;
   background: var(--color-surface-2);
   border: 1px solid var(--color-divider);
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 13px;
   animation: fade-in .16s ease-out both;
 }
@@ -620,15 +664,8 @@ input, textarea { font: inherit; color: inherit; }
 }
 
 /* Submit */
-.join-submit {
-  width: 100%; justify-content: center;
-  margin-top: 4px;
-  height: 46px;
-  font-size: 15px;
-}
-.join-submit:disabled {
-  opacity: 0.5; cursor: not-allowed; filter: none;
-}
+/* Layout only — size/shape/disabled come from .btn.lg.block. */
+.join-submit { margin-top: 4px; }
 
 /* ──────────────────────────────────────────────────────
    Landing stage — full-viewport wordmark + cursor swarm,
@@ -781,7 +818,7 @@ input, textarea { font: inherit; color: inherit; }
   margin: 8px 0 0;
   padding: 10px 12px;
   background: var(--color-surface-2);
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow-x: auto;
   font-size: 11.5px;
   line-height: 1.5;
@@ -804,20 +841,15 @@ input, textarea { font: inherit; color: inherit; }
 .lobby-topbar-actions {
   display: flex; align-items: center; gap: 8px;
 }
-.lobby-invite { font-size: 13px; padding: 7px 14px; }
-.lobby-leave  { font-size: 13px; padding: 7px 12px; }
 .lobby-main {
   flex: 1;
   display: grid; place-items: center;
   padding: 24px 24px 64px;
 }
+/* Layout only — visual treatment (bg/border/radius/shadow) comes from .surface. */
 .lobby-card {
   width: 100%; max-width: 440px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
   padding: 28px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   display: flex; flex-direction: column;
 }
 .lobby-header { display: flex; flex-direction: column; gap: 6px; }
@@ -880,9 +912,43 @@ input, textarea { font: inherit; color: inherit; }
   margin: 0;
 }
 .lobby-actions {
-  display: flex; flex-direction: column; align-items: stretch;
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
 }
-.lobby-primary { width: 100%; justify-content: center; }
+
+/* Host-only inline title editing */
+.lobby-title-edit {
+  display: inline-flex; align-items: center; gap: 8px;
+  align-self: flex-start; max-width: 100%;
+  margin: -4px -8px; padding: 4px 8px;
+  background: transparent; border: 0; cursor: text;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background 0.12s ease;
+}
+.lobby-title-edit:hover { background: var(--color-surface-2); }
+.lobby-title-edit .lobby-title {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lobby-title-pencil {
+  color: var(--color-text-muted); flex-shrink: 0;
+  opacity: 0; transition: opacity 0.12s ease;
+}
+.lobby-title-edit:hover .lobby-title-pencil { opacity: 1; }
+.lobby-title-input {
+  width: 100%;
+  margin: -5px -9px; padding: 4px 8px;
+  font-size: 18px; font-weight: 600; letter-spacing: -0.011em; line-height: 1.3;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-brand-line);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.lobby-title-input:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-subtle);
+}
 .lobby-waiting {
   display: inline-flex; align-items: center; gap: 10px;
   align-self: center;
@@ -909,7 +975,7 @@ input, textarea { font: inherit; color: inherit; }
 
 @media (max-width: 480px) {
   .lobby-main { padding: 16px 16px 48px; }
-  .lobby-card { padding: 22px 20px; border-radius: 12px; }
+  .lobby-card { padding: 22px 20px; border-radius: var(--radius-lg); }
   .lobby-rule { margin: 18px 0; }
 }
 
@@ -1164,12 +1230,6 @@ input, textarea { font: inherit; color: inherit; }
   background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 4px; min-width: 140px;
 }
-.timer-lcd-menu-item {
-  display: block; width: 100%; text-align: left;
-  padding: 7px 10px; border: 0; background: transparent; cursor: pointer;
-  font: inherit; font-size: 13px; color: var(--color-text); border-radius: 6px;
-}
-.timer-lcd-menu-item:hover { background: var(--color-surface-2); }
 
 .timer-lcd-panel {
   display: flex; align-items: center; justify-content: center; gap: 16px;
@@ -1246,13 +1306,6 @@ input, textarea { font: inherit; color: inherit; }
   from { opacity: 0; transform: scale(0.96) translateY(-2px); }
   to   { opacity: 1; transform: none; }
 }
-.timer-ext-item {
-  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
-  padding: 8px 10px; border: 0; background: transparent; cursor: pointer;
-  font: inherit; font-size: 13px; font-weight: 500; color: var(--color-text);
-  border-radius: 7px;
-}
-.timer-ext-item:hover { background: var(--color-surface-2); }
 
 @media (prefers-reduced-motion: reduce) {
   .timer-ext-menu { animation: none; }
@@ -1388,3 +1441,68 @@ input, textarea { font: inherit; color: inherit; }
   transition: background 0.15s ease, color 0.15s ease;
 }
 .timer-ring-clear:hover { background: var(--color-surface-2); color: var(--color-text-2); }
+
+/* ── User account menu ──────────────────────────────────────────
+   Topbar avatar trigger + a compact, professional account popover
+   with an inline sign-out confirmation. */
+.usermenu-trigger {
+  display: flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 8px 0 4px;
+  background: transparent; border: 0; cursor: pointer;
+  border-radius: var(--radius-pill);
+  transition: background 0.12s ease;
+}
+.usermenu-trigger:hover { background: var(--color-surface-2); }
+.usermenu-trigger-name { font-size: 13px; color: var(--color-text-2); }
+
+.usermenu-pop {
+  position: absolute; top: 44px; right: 0; z-index: 20;
+  width: 268px; padding: 6px;
+  box-shadow: var(--shadow-lg);
+  transform-origin: top right;
+  animation: usermenu-in 0.15s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes usermenu-in {
+  from { opacity: 0; transform: scale(0.97) translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.usermenu-section { padding: 8px 10px; }
+.usermenu-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.usermenu-email {
+  margin-top: 4px; font-size: 12.5px; color: var(--color-text-2);
+  word-break: break-all; line-height: 1.4;
+}
+.usermenu-divider { height: 1px; background: var(--color-divider); margin: 2px 6px; }
+
+.usermenu-name {
+  width: 100%; height: 36px; margin-top: 7px;
+  padding: 0 12px;
+  background: var(--color-surface); color: var(--color-text);
+  border: 1px solid var(--color-border); border-radius: var(--radius);
+  font: inherit; font-size: 14px; outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.usermenu-name:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-subtle);
+}
+
+/* Sign-out trigger is a .menu-item; confirm uses .btn. Both reusable systems. */
+.usermenu-signout { height: 34px; }
+
+.usermenu-confirm {
+  padding: 10px; display: flex; flex-direction: column; gap: 11px;
+  animation: usermenu-fade 0.13s ease-out both;
+}
+@keyframes usermenu-fade { from { opacity: 0; } to { opacity: 1; } }
+.usermenu-confirm-text { font-size: 13px; color: var(--color-text-2); line-height: 1.45; }
+.usermenu-confirm-actions { display: flex; gap: 8px; }
+.usermenu-confirm-actions .btn { flex: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .usermenu-pop, .usermenu-confirm { animation: none; }
+}

@@ -71,7 +71,7 @@ export function TimerLcdCard({
     <div className={`timer-lcd-card timer-lcd--${level}`} data-paused={paused ? '' : undefined}>
       <header className="timer-lcd-head">
         <span className="timer-lcd-goal" aria-hidden>
-          <Icon name="target" size={20} strokeWidth={1.6} />
+          <Icon name="target" size={20} />
         </span>
         <div className="timer-lcd-titles">
           <div className="timer-lcd-title-row">
@@ -93,7 +93,7 @@ export function TimerLcdCard({
             {menuOpen && (
               <div className="timer-lcd-menu" role="menu">
                 <button
-                  className="timer-lcd-menu-item"
+                  className="menu-item"
                   onClick={() => {
                     setMenuOpen(false);
                     onChange(IDLE_TIMER);
@@ -109,7 +109,7 @@ export function TimerLcdCard({
 
       <div className="timer-lcd-panel">
         <span className="timer-lcd-clock" aria-hidden>
-          <Icon name="clock" size={26} strokeWidth={1.8} />
+          <Icon name="clock" size={26} />
         </span>
         <div className="timer-lcd-digits" role="timer" aria-live="off">
           <span className="timer-lcd-ghost" aria-hidden>88:88:88</span>

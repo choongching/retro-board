@@ -178,16 +178,14 @@ export function BoardTopbar({
                 boxShadow: 'var(--shadow-lg)',
                 display: 'flex', flexDirection: 'column', gap: 2,
               }}>
-                <button className="btn ghost" role="menuitem"
+                <button className="menu-item" role="menuitem"
                   onClick={() => { setExportOpen(false); onExportMarkdown(); }}
-                  title="Download a human-readable .md summary"
-                  style={{ justifyContent: 'flex-start', height: 32 }}>
+                  title="Download a human-readable .md summary">
                   Markdown (.md)
                 </button>
-                <button className="btn ghost" role="menuitem"
+                <button className="menu-item" role="menuitem"
                   onClick={() => { setExportOpen(false); onExportJson(); }}
-                  title="Download the full board as JSON (can be re-imported)"
-                  style={{ justifyContent: 'flex-start', height: 32 }}>
+                  title="Download the full board as JSON (can be re-imported)">
                   JSON (.json)
                 </button>
               </div>

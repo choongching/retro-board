@@ -100,14 +100,13 @@ export function SignIn() {
               </div>
 
               {error && (
-                <div className="tiny" style={{ color: '#9c4326' }}>{error}</div>
+                <div className="tiny" style={{ color: 'var(--color-danger)' }}>{error}</div>
               )}
 
               <button
                 type="submit"
-                className="btn accent lg"
-                disabled={submitting || !email.trim()}
-                style={{ justifyContent: 'center', width: '100%' }}>
+                className="btn accent lg block"
+                disabled={submitting || !email.trim()}>
                 {submitting ? 'Sending…' : 'Send magic link'}
               </button>
 

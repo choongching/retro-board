@@ -144,18 +144,7 @@ function ColumnEmptyState({
 }) {
   return (
     <div className="column-empty">
-      <svg
-        className="column-empty-icon"
-        width="40" height="40" viewBox="0 0 40 40"
-        fill="none" stroke="currentColor" strokeWidth="1.4"
-        strokeLinecap="round" strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M9 8 H26 L31 13 V32 H9 Z" />
-        <path d="M26 8 V13 H31" />
-        <line x1="14" y1="19" x2="24" y2="19" opacity="0.55" />
-        <line x1="14" y1="24" x2="20" y2="24" opacity="0.55" />
-      </svg>
+      <Icon name="sticky-note" size={40} className="column-empty-icon" />
       <div className="column-empty-title">{hint}</div>
       <p className="column-empty-body">
         Nothing here yet. Be the first to drop one in.

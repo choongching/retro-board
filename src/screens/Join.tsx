@@ -106,12 +106,12 @@ export function Join() {
                   aria-invalid={!!codeError}
                 />
               </div>
-              {codeError && <div className="tiny" style={{ color: '#9c4326', marginTop: 4 }}>{codeError}</div>}
+              {codeError && <div className="tiny" style={{ color: 'var(--color-danger)', marginTop: 4 }}>{codeError}</div>}
             </div>
 
             <button
               type="submit"
-              className="btn accent lg join-submit"
+              className="btn accent lg block join-submit"
               disabled={submitting || !name.trim() || !code.trim()}>
               {submitting ? 'Looking up…' : 'Join'}
             </button>

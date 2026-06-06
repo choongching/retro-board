@@ -233,6 +233,7 @@ function BoardInner({
             participants={participants}
             isOwner={isOwner}
             onStart={handleStart}
+            onTitleChange={handleTitleChange}
             onCopyInviteLink={handleCopyInviteLink}
             onLeave={onLeave}
           />

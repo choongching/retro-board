@@ -215,7 +215,7 @@ function ImportErrorCard({ message }: { message: string }) {
       background: 'color-mix(in oklch, #C77B58 12%, var(--color-bg))',
       borderColor: 'color-mix(in oklch, #C77B58 28%, var(--color-border))',
     }}>
-      <div style={{ fontWeight: 500, fontSize: 13, color: '#9c4326' }}>Import failed</div>
+      <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--color-danger)' }}>Import failed</div>
       <div className="tiny muted" style={{ marginTop: 2 }}>{message}</div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal } from './Modal';
+import { Icon } from '../icons';
 
 const INLINE_MIN_HEIGHT = 88;   // ~3 lines
 const INLINE_MAX_HEIGHT = 320;  // ~12 lines
@@ -95,14 +96,7 @@ export function NoteEditor({
         title="Open in editor"
         aria-label="Open in larger editor"
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-             stroke="currentColor" strokeWidth="1.6"
-             strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 5 V2 H5" />
-          <path d="M12 5 V2 H9" />
-          <path d="M2 9 V12 H5" />
-          <path d="M12 9 V12 H9" />
-        </svg>
+        <Icon name="maximize" size={14} />
       </button>
 
       <textarea
