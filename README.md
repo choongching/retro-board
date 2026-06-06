@@ -15,7 +15,7 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Type your name → you're in (the code is checked against the database first; bogus codes get a friendly inline error instead of dropping you into an empty room)
 - Add cards, vote on cards, drag them between columns
 - See teammates' cursors and avatars in real time
-- Copy the room code or invite link to pull in more teammates
+- Copy the invite link to pull in more teammates
 
 ### As a host (free, magic-link sign-in)
 - Create persistent retros that survive a refresh
@@ -59,7 +59,7 @@ home → "I'm hosting" tab → enter email
 Your board is saved to the database the moment you create it. Close the tab, come back tomorrow, it's still there.
 
 ### Sharing
-Inside the board, click the share icon next to the room code. That copies an invite link (`/join/<code>`) — recipients always see the name prompt before the board, even if they've used JomRetro before.
+Inside the board, click the room-code pill (it carries a share glyph). That copies an invite link (`/join/<code>`) — recipients always see the name prompt before the board, even if they've used JomRetro before.
 
 ### Recapping a previous session (owner-only)
 ```
@@ -96,7 +96,7 @@ The modal is **self-only**: other participants never know it appeared, so there'
 - **Wrong / typo'd room code on submit** → inline error below the field: _"We couldn't find a retro with that code. Double-check it with your teammate."_ The page doesn't navigate, your name input stays put.
 - **Invalid email in the host card** → inline error before any magic link gets sent.
 - **Visiting `/r/<bogus-code>` directly** (bookmark from a deleted retro, broken link) → friendly _"We couldn't find that retro"_ page with the offending code and a "Back home" button. No silent drop into an empty room.
-- **Successful actions** (copy invite link, copy code, reveal cards, export) → toast notification at the bottom of the screen.
+- **Successful actions** (copy invite link, reveal cards, export) → toast notification at the bottom of the screen.
 
 ---
 
@@ -138,7 +138,7 @@ Boards are share-link-trusted: anyone with the code can read, post, vote, edit t
 | Add / vote / edit / delete cards | ✅ | ✅ |
 | Drag cards between columns | ✅ | ✅ |
 | See teammates' cursors and presence | ✅ | ✅ |
-| Copy the room code / invite link | ✅ | ✅ |
+| Copy the invite link | ✅ | ✅ |
 | Rename the board (inline title edit) | ✅ | — |
 | Toggle anonymous mode | ✅ | — |
 | Reveal cards (when anon mode is on) | ✅ | — |
