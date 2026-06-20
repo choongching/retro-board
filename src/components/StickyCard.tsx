@@ -32,7 +32,9 @@ export function StickyCard({
   useEffect(() => { setText(card.text); }, [card.text]);
 
   const author = participants.find((p) => p.id === card.authorId);
-  const authorName = author?.name || 'Anonymous';
+  // Prefer the name snapshotted on the card so it survives the author leaving;
+  // fall back to live presence (keeps their session color) only if absent.
+  const authorName = card.authorName || author?.name || 'Anonymous';
   const authorColor = author?.color || colorForName(authorName);
   const isMine = card.authorId === profile.id;
   const youVoted = card.votes.includes(profile.id);

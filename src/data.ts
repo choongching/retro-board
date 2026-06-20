@@ -26,6 +26,9 @@ export type Card = {
   col: ColumnId;
   text: string;
   authorId: string;
+  // Author display name snapshotted at creation time, so the card keeps its
+  // author after that person leaves (presence is ephemeral; this is not).
+  authorName?: string;
   votes: string[];
   createdAt: number;
 };
