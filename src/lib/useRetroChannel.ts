@@ -66,6 +66,13 @@ export function useRetroChannel(
   const channelRef = useRef<RealtimeChannel | null>(null);
   const stateRef = useRef<RoomState>(state);
   stateRef.current = state;
+  // Live presence values read at track() time, so the channel never has to be
+  // rebuilt when they change. Rebuilding on isHost flip (it starts false, then
+  // flips true once auth resolves) left the host on a churned channel whose
+  // broadcasts no longer reached peers, so their notes never synced out.
+  const metaRef = useRef({ name: profile.name, color: profile.color, isHost });
+  const joinedAtRef = useRef(0);
+  const subscribedRef = useRef(false);
 
   useEffect(() => {
     const channel = supabase.channel(`retro:${roomCode}`, {
@@ -121,23 +128,49 @@ export function useRetroChannel(
       setState((prev) => applyPatch(prev, payload as Patch));
     });
 
+    // Stamp join time once per subscription so the host doesn't appear to
+    // "re-join" (which would knock it out of the oldest-user state:sync role).
+    joinedAtRef.current = Date.now();
     channel.subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
+        subscribedRef.current = true;
         await channel.track({
           id: profile.id,
-          name: profile.name,
-          color: profile.color,
-          joinedAt: Date.now(),
-          isHost,
+          name: metaRef.current.name,
+          color: metaRef.current.color,
+          joinedAt: joinedAtRef.current,
+          isHost: metaRef.current.isHost,
         });
       }
     });
 
     return () => {
+      subscribedRef.current = false;
       channel.unsubscribe();
+      // Fully remove the channel (not just unsubscribe) so a later resubscribe
+      // never leaves two channels registered on the same retro:<code> topic.
+      void supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [roomCode, profile.id, profile.name, profile.color, isHost]);
+  }, [roomCode, profile.id]);
+
+  // Keep the presence snapshot fresh and push host status / display name /
+  // color through the existing channel instead of rebuilding it. joinedAt stays
+  // fixed so the user keeps their place in the join order. The initial track()
+  // (in the subscribe callback) reads the useRef mount value; this effect keeps
+  // it correct afterwards (notably when isHost flips true once auth resolves).
+  useEffect(() => {
+    metaRef.current = { name: profile.name, color: profile.color, isHost };
+    if (subscribedRef.current && channelRef.current) {
+      void channelRef.current.track({
+        id: profile.id,
+        name: profile.name,
+        color: profile.color,
+        joinedAt: joinedAtRef.current,
+        isHost,
+      });
+    }
+  }, [profile.id, profile.name, profile.color, isHost]);
 
   // Helper: send a patch AND apply it locally (optimistic).
   const sendPatch = useCallback((patch: Patch) => {
