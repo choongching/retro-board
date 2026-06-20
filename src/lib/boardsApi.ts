@@ -92,6 +92,7 @@ type CardRow = {
   col: string;
   text: string;
   author_id: string | null;
+  author_name: string | null;
   votes: string[];
   created_at: string;
 };
@@ -99,7 +100,7 @@ type CardRow = {
 export async function getCardsForBoard(boardId: string): Promise<Card[]> {
   const { data, error } = await supabase
     .from('cards')
-    .select('id, col, text, author_id, votes, created_at')
+    .select('id, col, text, author_id, author_name, votes, created_at')
     .eq('board_id', boardId)
     .order('created_at', { ascending: true });
   if (error) {
@@ -111,6 +112,7 @@ export async function getCardsForBoard(boardId: string): Promise<Card[]> {
     col: r.col as ColumnId,
     text: r.text,
     authorId: r.author_id ?? '',
+    authorName: r.author_name ?? undefined,
     votes: r.votes ?? [],
     createdAt: new Date(r.created_at).getTime(),
   }));
@@ -128,7 +130,7 @@ export async function insertCard(
       col: card.col,
       text: card.text,
       author_id: card.authorId,
-      author_name: authorName,
+      author_name: card.authorName ?? authorName,
       votes: card.votes,
       created_at: new Date(card.createdAt).toISOString(),
     },
@@ -165,7 +167,7 @@ export async function bulkInsertCards(boardId: string, cards: Card[]): Promise<v
     col: c.col,
     text: c.text,
     author_id: c.authorId || null,
-    author_name: null,
+    author_name: c.authorName ?? null,
     votes: c.votes,
     created_at: new Date(c.createdAt).toISOString(),
   }));

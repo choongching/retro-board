@@ -144,8 +144,8 @@ function BoardInner({
   // Card mutations: wrappers preserve the prototype's prop signatures
   const handleAdd = useCallback((col: ColumnId, text: string) => {
     if (!text.trim()) return;
-    addCard({ col, text: text.trim(), authorId: profile.id });
-  }, [addCard, profile.id]);
+    addCard({ col, text: text.trim(), authorId: profile.id, authorName: profile.name });
+  }, [addCard, profile.id, profile.name]);
 
   const handleVote = useCallback((id: string) => voteCard(id, profile.id), [voteCard, profile.id]);
 
@@ -182,7 +182,7 @@ function BoardInner({
       lines.push(`## ${col.label}`);
       if (inCol.length === 0) lines.push('_(empty)_');
       inCol.forEach((c) => {
-        const author = participants.find((p) => p.id === c.authorId)?.name || 'Anonymous';
+        const author = c.authorName || participants.find((p) => p.id === c.authorId)?.name || 'Anonymous';
         lines.push(`- (${c.votes.length} votes) ${c.text}  _${author}_`);
       });
       lines.push('');
@@ -300,7 +300,7 @@ function BoardInner({
             onClose={icebreaker.dismiss}
             format={state.format}
             onSubmit={(text, col) => {
-              addCard({ col, text, authorId: profile.id });
+              addCard({ col, text, authorId: profile.id, authorName: profile.name });
               icebreaker.dismiss();
             }}
           />
