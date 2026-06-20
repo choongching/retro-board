@@ -190,6 +190,12 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **Host notes now sync to everyone.** Fixed a bug where notes a host posted during a live session were visible only to the host, participants never saw them. The host's realtime channel was being torn down and rebuilt a beat after load (host status only resolves once auth settles), which left it on a churned connection whose broadcasts stopped reaching the room. The host kept seeing its own notes via the optimistic local update, so nothing looked wrong on their end. The channel now subscribes once and stays put for the whole session.
+  - _Why:_ The facilitator is often the most active note-taker, so their thoughts silently vanishing for everyone else broke the core promise of a shared board.
+  - _UX value:_ Every note shows up for the whole room the moment it's posted, no matter who posts it.
+- **Notes keep their author after someone leaves.** Fixed a bug where a card's avatar and name flipped to "Anonymous" the instant its author closed their tab. Authorship was resolved from whoever was currently present, so it broke the moment that person dropped off. The author's name is now snapshotted onto the note when it's posted (the column already existed in the database), and read back on load.
+  - _Why:_ People come and go during a retro, and a note losing its author made it impossible to follow up or give credit.
+  - _UX value:_ A note keeps its author for the entire session and in the exported recap, even after that person has left.
 - **Neutral draft state for new cards.** The in-focus card composer no longer borrows the author's warm paper tint while you're typing. A draft stays muted (neutral surface + dashed border) and only takes its author color once it's dropped in.
   - _Why:_ A tinted draft looked identical to a posted note, so it wasn't obvious the thought hadn't been committed yet.
   - _UX value:_ The unconfirmed card reads as clearly "not posted," distinct from the confirmed notes around it.
