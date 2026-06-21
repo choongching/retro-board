@@ -10,16 +10,12 @@ export function useIcebreakerTrigger({
   cards,
   participants,
   profileId,
-  anonMode,
-  revealed,
   myJoinedAt,
   startedAt,
 }: {
   cards: Card[];
   participants: Array<{ id: string }>;
   profileId: string;
-  anonMode: boolean;
-  revealed: boolean;
   myJoinedAt: number | undefined;
   startedAt?: number | null;
 }): { shouldOpen: boolean; dismiss: () => void } {
@@ -51,8 +47,6 @@ export function useIcebreakerTrigger({
 
     const myCards = cards.filter((c) => c.authorId === profileId).length;
     if (myCards > 0) return;
-
-    if (anonMode && !revealed) return;
 
     openedRef.current = true;
     setShouldOpen(true);

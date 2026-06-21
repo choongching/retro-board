@@ -51,15 +51,13 @@ function SailboatHeroIllustration() {
 const ZONE_ORDER: ('destination' | 'wind' | 'shark' | 'anchor')[] = ['destination', 'wind', 'shark', 'anchor'];
 
 export function SailboatSurface({
-  cards, profile, participants, anonMode, revealed,
+  cards, profile, participants,
   onAdd, onEdit, onDelete, onVote, onMove,
 }: {
   fmt: Format;
   cards: Card[];
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   onAdd: (col: ColumnId, text: string) => void;
   onEdit: (id: string, text: string) => void;
   onDelete: (id: string) => void;
@@ -111,7 +109,6 @@ export function SailboatSurface({
               key={zoneId} zoneId={zoneId} zone={ZONE_DEFS[zoneId]}
               cards={cards.filter((c) => c.col === zoneId)}
               profile={profile} participants={participants}
-              anonMode={anonMode} revealed={revealed}
               dragId={dragId} setDragId={setDragId}
               onAdd={onAdd} onEdit={onEdit} onDelete={onDelete} onVote={onVote} onMove={onMove}
             />

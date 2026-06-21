@@ -20,7 +20,7 @@ function ZoneGlyph({ kind, color }: { kind: SailboatZoneDef['glyph']; color: str
 }
 
 export function SailboatZone({
-  zoneId, zone, cards, profile, participants, anonMode, revealed,
+  zoneId, zone, cards, profile, participants,
   dragId, setDragId,
   onAdd, onEdit, onDelete, onVote, onMove,
 }: {
@@ -29,8 +29,6 @@ export function SailboatZone({
   cards: Card[];
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   dragId: string | null;
   setDragId: (id: string | null) => void;
   onAdd: (col: ColumnId, text: string) => void;
@@ -117,7 +115,6 @@ export function SailboatZone({
           <StickyCard
             key={card.id} card={card}
             profile={profile} participants={participants}
-            anonMode={anonMode} revealed={revealed}
             isDragging={dragId === card.id}
             onDragStart={() => setDragId(card.id)}
             onDragEnd={() => setDragId(null)}

@@ -7,7 +7,7 @@ import type { Card, Column as ColumnDef, ColumnId } from '../data';
 import type { Profile } from '../lib/profile';
 
 export function Column({
-  col, cards, profile, participants, anonMode, revealed,
+  col, cards, profile, participants,
   dragId, setDragId,
   onAdd, onEdit, onDelete, onVote, onMove,
 }: {
@@ -15,8 +15,6 @@ export function Column({
   cards: Card[];
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   dragId: string | null;
   setDragId: (id: string | null) => void;
   onAdd: (col: ColumnId, text: string) => void;
@@ -120,7 +118,6 @@ export function Column({
             <StickyCard
               key={card.id} card={card}
               profile={profile} participants={participants}
-              anonMode={anonMode} revealed={revealed}
               isDragging={dragId === card.id}
               onDragStart={() => setDragId(card.id)}
               onDragEnd={() => setDragId(null)}

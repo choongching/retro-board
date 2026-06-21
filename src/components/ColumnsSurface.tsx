@@ -5,15 +5,13 @@ import type { Card, ColumnId, Format } from '../data';
 import type { Profile } from '../lib/profile';
 
 export function ColumnsSurface({
-  fmt, cards, profile, participants, anonMode, revealed,
+  fmt, cards, profile, participants,
   onAdd, onEdit, onDelete, onVote, onMove,
 }: {
   fmt: Format;
   cards: Card[];
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   onAdd: (col: ColumnId, text: string) => void;
   onEdit: (id: string, text: string) => void;
   onDelete: (id: string) => void;
@@ -45,7 +43,6 @@ export function ColumnsSurface({
             cards={cards.filter((c) => c.col === col.id)}
             profile={profile}
             participants={participants}
-            anonMode={anonMode} revealed={revealed}
             dragId={dragId} setDragId={setDragId}
             onAdd={onAdd} onEdit={onEdit} onDelete={onDelete} onVote={onVote} onMove={onMove}
           />
