@@ -5,7 +5,7 @@ import type { Card } from '../data';
 import type { Profile } from '../lib/profile';
 import { NoteEditor } from './NoteEditor';
 
-export type Participant = { id: string; name: string; color: string };
+export type Participant = { id: string; name: string; color: string; isHost?: boolean };
 
 export function StickyCard({
   card, profile, participants, anonMode, revealed,

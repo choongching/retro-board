@@ -190,6 +190,9 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **See the full participant list from the avatar stack.** The topbar presence stack now shows up to 5 avatars, then a "+N" chip, and the whole stack is a button: click it (or the "+N") to open a popover listing everyone in the room. Each row shows the avatar and name, marks yourself with "(you)", and tags the host. The list is sorted you, then host, then everyone else alphabetically, and scrolls for large rooms. Hovering an individual avatar still shows their name.
+  - _Why:_ Once 5 or 6 people joined, the stack collapsed to a bare "+6" that did nothing on hover or click, so you couldn't tell who else was in the session.
+  - _UX value:_ A glanceable, keyboard-accessible roster of who's here, with the facilitator and yourself called out, no matter how many people join.
 - **Host notes now sync to everyone.** Fixed a bug where notes a host posted during a live session were visible only to the host, participants never saw them. The host's realtime channel was being torn down and rebuilt a beat after load (host status only resolves once auth settles), which left it on a churned connection whose broadcasts stopped reaching the room. The host kept seeing its own notes via the optimistic local update, so nothing looked wrong on their end. The channel now subscribes once and stays put for the whole session.
   - _Why:_ The facilitator is often the most active note-taker, so their thoughts silently vanishing for everyone else broke the core promise of a shared board.
   - _UX value:_ Every note shows up for the whole room the moment it's posted, no matter who posts it.
