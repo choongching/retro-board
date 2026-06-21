@@ -185,6 +185,9 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **Delightful upvotes.** Upvoting a card now has a personal, only-you-see-it celebration: the chip springs with a pop, the count rolls up, a "+1" floats off it, and a small burst fires from the chip, picked at random each click from a rotating set (hearts, warm confetti, gold sparkle-stars, column-aware emoji, an upward fountain, and an emoji pop), never repeating the one just shown. Crossing 10 / 25 / 50 votes on a card upgrades to a bigger two-stage celebration. Everything is client-side only (nothing is broadcast, the room still just sees the count), fires on vote-on only, and fully respects `prefers-reduced-motion`.
+  - _Why:_ Voting was the most-repeated action in a session but felt flat, and a retro should feel a little joyful, not just functional.
+  - _UX value:_ A small hit of delight on every vote that stays fresh through randomized variety, with the bigger moments reserved for cards that are clearly resonating with the room.
 - **Removed anonymous mode.** Retired the host-only "anonymous mode" toggle and its companion "Reveal" flow that hid everyone else's cards until the host revealed them. Cards now always show their text and author to everyone in the room. The eye toggle is gone from the topbar, and the icebreaker nudge no longer has to wait for a reveal.
   - _Why:_ In practice it added a layer of hide-and-reveal ceremony without improving the retros, just an extra control to find, toggle, and remember to undo. Anon state was never persisted, so nothing of value is lost.
   - _UX value:_ One less control to reason about, and authorship is always visible so it is easy to follow up on a note or give credit.

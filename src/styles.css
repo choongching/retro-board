@@ -320,6 +320,15 @@ input, textarea { font: inherit; color: inherit; }
   transition: background .12s;
 }
 .sticky-vote:hover { background: rgba(255,255,255,0.85); }
+.vote-wrap { position: relative; display: inline-flex; }
+.vote-ping {
+  position: absolute; left: 50%; top: -4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-size: 12px; font-weight: 700;
+  color: var(--color-brand);
+  font-variant-numeric: tabular-nums;
+}
 .sticky-vote.voted {
   background: var(--color-brand);
   border-color: var(--color-brand);
