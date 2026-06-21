@@ -338,21 +338,6 @@ input, textarea { font: inherit; color: inherit; }
   display: grid; place-items: center;
 }
 .sticky-actions button:hover { background: rgba(255,255,255,0.95); color: var(--color-text); }
-.sticky.hidden-anon .sticky-text {
-  filter: blur(6px);
-  user-select: none;
-}
-.sticky.hidden-anon::after {
-  content: 'Hidden until reveal';
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
-  font-size: 11px; letter-spacing: 0.04em;
-  color: color-mix(in oklch, var(--color-text) 70%, transparent);
-  pointer-events: none;
-  text-transform: uppercase;
-  background: color-mix(in oklch, var(--sticky-tint) 55%, transparent);
-  border-radius: var(--radius);
-}
 
 /* ── Add-card composer (outer chrome only; input lives in .note-editor) ──
    A draft note stays neutral and muted on purpose: it reads as "not posted

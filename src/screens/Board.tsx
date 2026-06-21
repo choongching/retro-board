@@ -128,8 +128,6 @@ function BoardInner({
     cards: state.cards,
     participants,
     profileId: profile.id,
-    anonMode: state.anonMode,
-    revealed: state.revealed,
     myJoinedAt,
     startedAt: state.startedAt,
   });
@@ -148,15 +146,6 @@ function BoardInner({
   }, [addCard, profile.id, profile.name]);
 
   const handleVote = useCallback((id: string) => voteCard(id, profile.id), [voteCard, profile.id]);
-
-  const handleToggleAnon = useCallback(() => {
-    updateSettings({ anonMode: !state.anonMode, revealed: state.anonMode ? state.revealed : false });
-  }, [updateSettings, state.anonMode, state.revealed]);
-
-  const handleReveal = useCallback(() => {
-    updateSettings({ revealed: true });
-    showToast('Cards revealed');
-  }, [updateSettings, showToast]);
 
   const handleTitleChange = useCallback((next: string) => {
     const trimmed = next.trim();
@@ -248,12 +237,8 @@ function BoardInner({
             fmt={fmt}
             profile={profile}
             participants={participants}
-            anonMode={state.anonMode}
-            revealed={state.revealed}
             isOwner={isOwner}
             onTitleChange={handleTitleChange}
-            onToggleAnon={handleToggleAnon}
-            onReveal={handleReveal}
             onExportMarkdown={exportMarkdown}
             onExportJson={exportJsonHandler}
             onLeave={onLeave}
@@ -270,8 +255,6 @@ function BoardInner({
             cards={state.cards}
             profile={profile}
             participants={participants}
-            anonMode={state.anonMode}
-            revealed={state.revealed}
             onAdd={handleAdd}
             onEdit={editCard}
             onDelete={deleteCard}

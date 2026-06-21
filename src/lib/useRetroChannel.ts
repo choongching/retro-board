@@ -19,8 +19,6 @@ export type RoomState = {
   format: FormatId;
   title: string;
   cards: Card[];
-  anonMode: boolean;
-  revealed: boolean;
   startedAt: number | null;
   timer: Timer;
 };
@@ -47,8 +45,6 @@ const EMPTY: RoomState = {
   format: 'classic',
   title: 'Untitled retro',
   cards: [],
-  anonMode: false,
-  revealed: true,
   startedAt: null,
   timer: IDLE_TIMER,
 };
@@ -212,8 +208,8 @@ export function useRetroChannel(
     (patch: Partial<RoomState>) => sendPatch({ kind: 'settings', patch }),
     [sendPatch],
   );
-  // Timebox timer: ephemeral like anon/reveal (writePatchThrough ignores it),
-  // so it broadcasts to everyone but is never written to the DB.
+  // Timebox timer: ephemeral (writePatchThrough ignores it), so it broadcasts
+  // to everyone but is never written to the DB.
   const setTimer = useCallback(
     (timer: Timer) => sendPatch({ kind: 'settings', patch: { timer } }),
     [sendPatch],
@@ -278,7 +274,7 @@ function writePatchThrough(
       void updateCardCol(patch.id, patch.col);
       break;
     case 'settings':
-      // Persist title and startedAt to `boards`; anonMode/revealed stay in-memory.
+      // Persist title and startedAt to `boards`; timer stays in-memory.
       if (typeof patch.patch.title === 'string') {
         void updateBoardTitle(boardId, patch.patch.title);
       }

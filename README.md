@@ -25,7 +25,6 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Copy a clean invite link (`/join/<code>`) so participants always land on the name prompt before the board loads
 - Delete boards (cards cascade)
 - Import a JSON export to start a new retro from a saved one
-- Toggle anonymous mode and reveal cards on demand
 - Export the retro as Markdown or JSON
 - Jump back to **My boards** with the back arrow in the topbar
 - **Recap a previous session** inside the new board: pull up a read-only snapshot of any past retro and review action items before kicking off the next one
@@ -34,7 +33,6 @@ JomRetro is a multiplayer retrospective board. Open a room, share a code or invi
 - Real-time card sync across every connected tab
 - Real-time cursor positions, with a **HOST** chip next to the facilitator's cursor and lobby chip so the room knows who's running things
 - Real-time avatar presence
-- Anonymous mode + reveal flow for blind voting
 - **Lobby** before the live board: host sees who's arrived, others see who's here and "Waiting for {host} to start" until the host clicks Start
 - **Icebreaker nudge** for anyone who's been silent in a busy room. After about 3 minutes with at least 3 others present and 5 cards already on the board, a one-time, self-only modal opens with a friendly open-ended prompt. Type a sentence, pick a column, and your answer becomes your first card.
 
@@ -96,7 +94,7 @@ The modal is **self-only**: other participants never know it appeared, so there'
 - **Wrong / typo'd room code on submit** → inline error below the field: _"We couldn't find a retro with that code. Double-check it with your teammate."_ The page doesn't navigate, your name input stays put.
 - **Invalid email in the host card** → inline error before any magic link gets sent.
 - **Visiting `/r/<bogus-code>` directly** (bookmark from a deleted retro, broken link) → friendly _"We couldn't find that retro"_ page with the offending code and a "Back home" button. No silent drop into an empty room.
-- **Successful actions** (copy invite link, reveal cards, export) → toast notification at the bottom of the screen.
+- **Successful actions** (copy invite link, export) → toast notification at the bottom of the screen.
 
 ---
 
@@ -140,15 +138,13 @@ Boards are share-link-trusted: anyone with the code can read, post, vote, edit t
 | See teammates' cursors and presence | ✅ | ✅ |
 | Copy the invite link | ✅ | ✅ |
 | Rename the board (inline title edit) | ✅ | — |
-| Toggle anonymous mode | ✅ | — |
-| Reveal cards (when anon mode is on) | ✅ | — |
 | Set / control the session timer | ✅ | — |
 | Export the retro (.md / .json) | ✅ | — |
 | Back arrow → "My boards" | ✅ | — |
 | Recap a previous session | ✅ | — |
 | Delete the board | ✅ | — |
 
-The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (anon toggle, reveal, timer, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner. The timer is host-controlled but shared: participants see a read-only countdown while it's running.
+The board-level actions (rename, delete) are also enforced by Postgres Row-Level Security on the server, so removing the UI gate wouldn't help anyone bypass them. The other gates (timer, export, back arrow) are UI-only — they affect everyone in the room or are simply only meaningful for the owner. The timer is host-controlled but shared: participants see a read-only countdown while it's running.
 
 ---
 
@@ -157,7 +153,6 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 - ✓ Real-time multiplayer (cards, cursors, avatars)
 - ✓ Three retro formats out of the box
 - ✓ Inline-editable board titles (creator only)
-- ✓ Anonymous mode + reveal
 - ✓ Markdown + JSON export
 - ✓ JSON import (start a fresh board from a previous one)
 - ✓ Persistent boards for signed-in creators
@@ -190,6 +185,9 @@ The board-level actions (rename, delete) are also enforced by Postgres Row-Level
 A light changelog of notable changes. For everything else, see the [commit history](https://github.com/choongching/retro-board/commits/main).
 
 ### June 2026
+- **Removed anonymous mode.** Retired the host-only "anonymous mode" toggle and its companion "Reveal" flow that hid everyone else's cards until the host revealed them. Cards now always show their text and author to everyone in the room. The eye toggle is gone from the topbar, and the icebreaker nudge no longer has to wait for a reveal.
+  - _Why:_ In practice it added a layer of hide-and-reveal ceremony without improving the retros, just an extra control to find, toggle, and remember to undo. Anon state was never persisted, so nothing of value is lost.
+  - _UX value:_ One less control to reason about, and authorship is always visible so it is easy to follow up on a note or give credit.
 - **See the full participant list from the avatar stack.** The topbar presence stack now shows up to 5 avatars, then a "+N" chip, and the whole stack is a button: click it (or the "+N") to open a popover listing everyone in the room. Each row shows the avatar and name, marks yourself with "(you)", and tags the host. The list is sorted you, then host, then everyone else alphabetically, and scrolls for large rooms. Hovering an individual avatar still shows their name.
   - _Why:_ Once 5 or 6 people joined, the stack collapsed to a bare "+6" that did nothing on hover or click, so you couldn't tell who else was in the session.
   - _UX value:_ A glanceable, keyboard-accessible roster of who's here, with the facilitator and yourself called out, no matter how many people join.

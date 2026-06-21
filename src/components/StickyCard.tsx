@@ -8,15 +8,13 @@ import { NoteEditor } from './NoteEditor';
 export type Participant = { id: string; name: string; color: string; isHost?: boolean };
 
 export function StickyCard({
-  card, profile, participants, anonMode, revealed,
+  card, profile, participants,
   isDragging, onDragStart, onDragEnd, onDropBefore,
   onEdit, onDelete, onVote,
 }: {
   card: Card;
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   isDragging: boolean;
   onDragStart: () => void;
   onDragEnd: () => void;
@@ -38,9 +36,6 @@ export function StickyCard({
   const authorColor = author?.color || colorForName(authorName);
   const isMine = card.authorId === profile.id;
   const youVoted = card.votes.includes(profile.id);
-
-  const hidden = anonMode && !revealed && !isMine;
-  const showAuthor = !anonMode || revealed || isMine;
 
   const rot = useMemo(() => {
     let h = 0; for (let i = 0; i < card.id.length; i++) h = (h * 17 + card.id.charCodeAt(i)) >>> 0;
@@ -78,14 +73,14 @@ export function StickyCard({
         onDropBefore(card.id);
         setDropPos(null);
       }}
-      className={`sticky fade-in ${isDragging ? 'dragging' : ''} ${hidden ? 'hidden-anon' : ''}`}
+      className={`sticky fade-in ${isDragging ? 'dragging' : ''}`}
       style={{
         ['--sticky-tint' as string]: `var(${tintVar})`,
         transform: isDragging ? 'rotate(0deg)' : `rotate(${rot}deg)`,
         outline: dropPos === 'before' ? '2px solid var(--color-brand)' : 'none',
         outlineOffset: 2,
       } as React.CSSProperties}>
-      {!editing && !hidden && isMine && (
+      {!editing && isMine && (
         <div className="sticky-actions">
           <button onClick={() => setEditing(true)} title="Edit"><Icon name="edit" size={11} /></button>
           <button onClick={() => onDelete(card.id)} title="Delete"><Icon name="trash" size={11} /></button>
@@ -105,22 +100,16 @@ export function StickyCard({
         />
       ) : (
         <div className="sticky-text" onDoubleClick={() => isMine && setEditing(true)}>
-          {hidden ? ' ' : card.text}
+          {card.text}
         </div>
       )}
 
       <div className="sticky-foot">
         <div className="sticky-author">
-          {showAuthor ? (
-            <>
-              <div className="avatar xs" style={{ background: authorColor }}>
-                {initials(authorName)}
-              </div>
-              <span>{authorName}{isMine ? ' (you)' : ''}</span>
-            </>
-          ) : (
-            <span style={{ fontStyle: 'italic', opacity: 0.6 }}>Anonymous</span>
-          )}
+          <div className="avatar xs" style={{ background: authorColor }}>
+            {initials(authorName)}
+          </div>
+          <span>{authorName}{isMine ? ' (you)' : ''}</span>
         </div>
         {!editing && (
           <button

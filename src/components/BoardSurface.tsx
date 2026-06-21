@@ -9,8 +9,6 @@ export function BoardSurface(props: {
   cards: Card[];
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   accent?: string;
   onAdd: (col: ColumnId, text: string) => void;
   onEdit: (id: string, text: string) => void;

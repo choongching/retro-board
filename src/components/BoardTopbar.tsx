@@ -11,9 +11,9 @@ import type { Profile } from '../lib/profile';
 import type { Timer } from '../lib/timer';
 
 export function BoardTopbar({
-  code, title, fmt, profile, participants, anonMode, revealed,
+  code, title, fmt, profile, participants,
   isOwner, onTitleChange,
-  onToggleAnon, onReveal, onExportMarkdown, onExportJson, onLeave, onCopyInviteLink, onChangeProfile, onProfileChange,
+  onExportMarkdown, onExportJson, onLeave, onCopyInviteLink, onChangeProfile, onProfileChange,
   onOpenRecap,
   timer, onTimerChange,
 }: {
@@ -22,12 +22,8 @@ export function BoardTopbar({
   fmt: Format;
   profile: Profile;
   participants: Participant[];
-  anonMode: boolean;
-  revealed: boolean;
   isOwner: boolean;
   onTitleChange: (next: string) => void;
-  onToggleAnon: () => void;
-  onReveal: () => void;
   onExportMarkdown: () => void;
   onExportJson: () => void;
   onLeave: () => void;
@@ -142,20 +138,6 @@ export function BoardTopbar({
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <TimerTopbarLcd timer={timer} isHost={isOwner} onChange={onTimerChange} />
-
-        {isOwner && anonMode && !revealed && (
-          <button className="btn sm accent" onClick={onReveal}>
-            <Icon name="eye" size={12} /> Reveal
-          </button>
-        )}
-
-        {isOwner && (
-          <button className="btn icon" onClick={onToggleAnon}
-            title={anonMode ? 'Anonymous mode is on' : 'Anonymous mode is off'}
-            style={anonMode ? { background: 'var(--color-brand-subtle)', borderColor: 'var(--color-brand-line)', color: 'var(--color-brand)' } : undefined}>
-            <Icon name={anonMode ? 'eye-off' : 'eye'} size={13} />
-          </button>
-        )}
 
         {isOwner && (
           <button className="btn icon" onClick={onOpenRecap}
