@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from 'motion/react';
 import { Icon } from '../icons';
 import { colorForName, initials, tintForName } from '../data';
 import type { Card } from '../data';
 import type { Profile } from '../lib/profile';
+import { celebrateVote } from '../lib/voteDelight';
+import { AnimatedCount } from './AnimatedCount';
 import { NoteEditor } from './NoteEditor';
 
 export type Participant = { id: string; name: string; color: string; isHost?: boolean };
@@ -26,6 +29,11 @@ export function StickyCard({
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(card.text);
   const [dropPos, setDropPos] = useState<'before' | null>(null);
+  const [pings, setPings] = useState<number[]>([]);
+  const pingId = useRef(0);
+  const voteRef = useRef<HTMLButtonElement | null>(null);
+  const voteControls = useAnimationControls();
+  const reduce = useReducedMotion();
 
   useEffect(() => { setText(card.text); }, [card.text]);
 
@@ -54,6 +62,24 @@ export function StickyCard({
   const cancelEdit = () => {
     setText(card.text);
     setEditing(false);
+  };
+
+  const handleVoteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const votingOn = !youVoted;
+    onVote(card.id);
+    if (!votingOn) return; // delight is vote-on only; nothing on un-vote
+
+    if (!reduce) {
+      voteControls.start({
+        scale: [1, 1.28, 1],
+        transition: { duration: 0.35, times: [0, 0.4, 1] },
+      });
+      const id = pingId.current++;
+      setPings((p) => [...p, id]);
+    }
+    if ('vibrate' in navigator) navigator.vibrate(8); // Android only; no-op elsewhere
+    if (voteRef.current) celebrateVote(voteRef.current, card.col, card.votes.length + 1);
   };
 
   return (
@@ -112,13 +138,34 @@ export function StickyCard({
           <span>{authorName}{isMine ? ' (you)' : ''}</span>
         </div>
         {!editing && (
-          <button
-            className={`sticky-vote ${youVoted ? 'voted' : ''}`}
-            onClick={(e) => { e.stopPropagation(); onVote(card.id); }}
-            title={youVoted ? 'Remove vote' : 'Vote'}>
-            <Icon name="arrow-up" size={10} />
-            {card.votes.length}
-          </button>
+          <div className="vote-wrap">
+            <motion.button
+              ref={voteRef}
+              className={`sticky-vote ${youVoted ? 'voted' : ''}`}
+              onClick={handleVoteClick}
+              title={youVoted ? 'Remove vote' : 'Vote'}
+              animate={voteControls}
+              whileTap={reduce ? undefined : { scale: 0.92 }}
+              whileHover={reduce ? undefined : { scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
+              <Icon name="arrow-up" size={10} />
+              <AnimatedCount value={card.votes.length} />
+            </motion.button>
+            <AnimatePresence>
+              {pings.map((id) => (
+                <motion.span
+                  key={id}
+                  className="vote-ping"
+                  initial={{ opacity: 0, y: 0, scale: 0.7 }}
+                  animate={{ opacity: [0, 1, 0], y: -22, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.7, ease: 'easeOut' }}
+                  onAnimationComplete={() => setPings((p) => p.filter((x) => x !== id))}>
+                  +1
+                </motion.span>
+              ))}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     </div>
